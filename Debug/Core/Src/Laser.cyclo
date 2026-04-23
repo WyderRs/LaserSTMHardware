@@ -1,0 +1,15 @@
+../Core/Src/Laser.c:35:6:LaserCountCurvEN	1
+../Core/Src/Laser.c:40:6:LaserCountCurvTgl	1
+../Core/Src/Laser.c:44:6:LaserDriverDirection	1
+../Core/Src/Laser.c:49:6:LaserDriverEnable	1
+../Core/Src/Laser.c:56:7:LaserInit	1
+../Core/Src/Laser.c:109:6:LaserLoop	6
+../Core/Src/Laser.c:165:6:StepMoves	7
+../Core/Src/Laser.c:209:6:ContMoves	1
+../Core/Src/Laser.c:219:6:PointMoves	1
+../Core/Src/Laser.c:229:7:GoHome	3
+../Core/Src/Laser.c:264:6:LaserSW_Set	1
+../Core/Src/Laser.c:273:6:GlbtimDelay	2
+../Core/Src/Laser.c:282:6:HAL_TIM_PeriodElapsedCallback	7
+../Core/Src/Laser.c:317:6:HAL_GPIO_EXTI_Callback	9
+../Core/Src/Laser.c:353:6:HAL_UART_RxCpltCallback	5

@@ -1,0 +1,17 @@
+../Core/Src/main.c:89:9:Scan_AS5600_I2C	24	static
+../Core/Src/main.c:105:19:AS5600_WriteReg	32	static
+../Core/Src/main.c:110:19:AS5600_ReadReg	40	static
+../Core/Src/main.c:115:19:AS5600_ReadRawValue	24	static
+../Core/Src/main.c:144:5:main	32	static
+../Core/Src/main.c:263:6:SystemClock_Config	96	static
+../Core/Src/main.c:310:13:MX_ADC1_Init	24	static
+../Core/Src/main.c:362:13:MX_I2C1_Init	8	static
+../Core/Src/main.c:396:13:MX_I2C2_Init	8	static
+../Core/Src/main.c:430:13:MX_TIM5_Init	32	static
+../Core/Src/main.c:475:13:MX_TIM6_Init	16	static
+../Core/Src/main.c:513:13:MX_TIM7_Init	16	static
+../Core/Src/main.c:551:13:MX_TIM8_Init	32	static
+../Core/Src/main.c:597:13:MX_USART1_UART_Init	8	static
+../Core/Src/main.c:630:13:MX_GPIO_Init	40	static
+../Core/Src/main.c:702:6:HAL_ADC_ConvCpltCallback	16	static
+../Core/Src/main.c:731:6:Error_Handler	4	static,ignoring_inline_asm
