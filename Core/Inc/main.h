@@ -57,6 +57,8 @@ void Error_Handler(void);
 /* USER CODE END EFP */
 
 /* Private defines -----------------------------------------------------------*/
+#define SPI_CS_Pin GPIO_PIN_4
+#define SPI_CS_GPIO_Port GPIOA
 #define LED_2_Pin GPIO_PIN_13
 #define LED_2_GPIO_Port GPIOB
 #define LED_1_Pin GPIO_PIN_14
@@ -75,6 +77,8 @@ void Error_Handler(void);
 #define AXIS_X_EN_GPIO_Port GPIOD
 #define AXIS_Y_EN_Pin GPIO_PIN_15
 #define AXIS_Y_EN_GPIO_Port GPIOD
+#define LASER_Pin GPIO_PIN_5
+#define LASER_GPIO_Port GPIOD
 #define AXIS_X_SWITCH_Pin GPIO_PIN_6
 #define AXIS_X_SWITCH_GPIO_Port GPIOD
 #define AXIS_X_SWITCH_EXTI_IRQn EXTI9_5_IRQn

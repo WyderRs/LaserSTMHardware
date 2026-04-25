@@ -18,6 +18,7 @@
 /* USER CODE END Header */
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
+#include "fatfs.h"
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
@@ -27,7 +28,7 @@
 #include "AS5600.h"
 #include "module.h"
 #include "stdio.h"
-
+#include "SD.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -55,6 +56,8 @@ ADC_HandleTypeDef hadc1;
 I2C_HandleTypeDef hi2c1;
 I2C_HandleTypeDef hi2c2;
 
+SPI_HandleTypeDef hspi1;
+
 TIM_HandleTypeDef htim5;
 TIM_HandleTypeDef htim6;
 TIM_HandleTypeDef htim7;
@@ -77,6 +80,7 @@ static void MX_TIM5_Init(void);
 static void MX_I2C2_Init(void);
 static void MX_ADC1_Init(void);
 static void MX_TIM8_Init(void);
+static void MX_SPI1_Init(void);
 /* USER CODE BEGIN PFP */
 
 /* USER CODE END PFP */
@@ -174,6 +178,8 @@ int main(void)
   MX_I2C2_Init();
   MX_ADC1_Init();
   MX_TIM8_Init();
+  MX_SPI1_Init();
+  MX_FATFS_Init();
   /* USER CODE BEGIN 2 */
 
 
@@ -182,47 +188,47 @@ int main(void)
 
   LCD1602_Init();
 
-  HAL_Delay(1000);
+//  HAL_Delay(1000);
 
-  uint16_t rawAngle = 0;
-
-  _Bool flag_t = 0;
-
-  if (flag_t) {
-  HAL_ADC_Start_IT(&hadc1);
-  HAL_TIM_Base_Start_IT(&htim8);
-  }
-  while(flag_t)
-  {
-	  LCD1602_SetCursor(0, 0);
-	  char buf1[] = {0};
-	  AS5600_ReadRawValue(&hi2c2, &rawAngle);
-	  sprintf(buf1, "%d    ", rawAngle);
-	  LCD1602_WriteString(buf1);
-
-
-	  LCD1602_SetCursor(1, 0);
-	  char buf2[] = {0};
-	  AS5600_ReadRawValue(&hi2c2, &rawAngle);
-	  sprintf(buf2, "%.2f    ", rawAngle * AS5600_RAW_TO_DEGREES);
-	  LCD1602_WriteString(buf2);
-
-
-	  LCD1602_SetCursor(0, 7);
-	  char buf3[] = {0};
-	  sprintf(buf3, "%d    ", ADC_Value);
-	  LCD1602_WriteString(buf3);
-
-
-	  LCD1602_SetCursor(1, 7);
-	  char buf4[] = {0};
-	  sprintf(buf4, "%.2f    ", ADC_Value * AS5600_RAW_TO_DEGREES);
-	  LCD1602_WriteString(buf4);
-
-
-
-	  HAL_Delay(500);
-  }
+//  uint16_t rawAngle = 0;
+//
+//  _Bool flag_t = 0;
+//
+//  if (flag_t) {
+//  HAL_ADC_Start_IT(&hadc1);
+//  HAL_TIM_Base_Start_IT(&htim8);
+//  }
+//  while(flag_t)
+//  {
+//	  LCD1602_SetCursor(0, 0);
+//	  char buf1[] = {0};
+//	  AS5600_ReadRawValue(&hi2c2, &rawAngle);
+//	  sprintf(buf1, "%d    ", rawAngle);
+//	  LCD1602_WriteString(buf1);
+//
+//
+//	  LCD1602_SetCursor(1, 0);
+//	  char buf2[] = {0};
+//	  AS5600_ReadRawValue(&hi2c2, &rawAngle);
+//	  sprintf(buf2, "%.2f    ", rawAngle * AS5600_RAW_TO_DEGREES);
+//	  LCD1602_WriteString(buf2);
+//
+//
+//	  LCD1602_SetCursor(0, 7);
+//	  char buf3[] = {0};
+//	  sprintf(buf3, "%d    ", ADC_Value);
+//	  LCD1602_WriteString(buf3);
+//
+//
+//	  LCD1602_SetCursor(1, 7);
+//	  char buf4[] = {0};
+//	  sprintf(buf4, "%.2f    ", ADC_Value * AS5600_RAW_TO_DEGREES);
+//	  LCD1602_WriteString(buf4);
+//
+//
+//
+//	  HAL_Delay(500);
+//  }
 
 
   if (LaserInit())
@@ -419,6 +425,44 @@ static void MX_I2C2_Init(void)
   /* USER CODE BEGIN I2C2_Init 2 */
 
   /* USER CODE END I2C2_Init 2 */
+
+}
+
+/**
+  * @brief SPI1 Initialization Function
+  * @param None
+  * @retval None
+  */
+static void MX_SPI1_Init(void)
+{
+
+  /* USER CODE BEGIN SPI1_Init 0 */
+
+  /* USER CODE END SPI1_Init 0 */
+
+  /* USER CODE BEGIN SPI1_Init 1 */
+
+  /* USER CODE END SPI1_Init 1 */
+  /* SPI1 parameter configuration*/
+  hspi1.Instance = SPI1;
+  hspi1.Init.Mode = SPI_MODE_MASTER;
+  hspi1.Init.Direction = SPI_DIRECTION_2LINES;
+  hspi1.Init.DataSize = SPI_DATASIZE_8BIT;
+  hspi1.Init.CLKPolarity = SPI_POLARITY_LOW;
+  hspi1.Init.CLKPhase = SPI_PHASE_1EDGE;
+  hspi1.Init.NSS = SPI_NSS_SOFT;
+  hspi1.Init.BaudRatePrescaler = SPI_BAUDRATEPRESCALER_16;
+  hspi1.Init.FirstBit = SPI_FIRSTBIT_MSB;
+  hspi1.Init.TIMode = SPI_TIMODE_DISABLE;
+  hspi1.Init.CRCCalculation = SPI_CRCCALCULATION_DISABLE;
+  hspi1.Init.CRCPolynomial = 10;
+  if (HAL_SPI_Init(&hspi1) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  /* USER CODE BEGIN SPI1_Init 2 */
+
+  /* USER CODE END SPI1_Init 2 */
 
 }
 
@@ -630,8 +674,8 @@ static void MX_USART1_UART_Init(void)
 static void MX_GPIO_Init(void)
 {
   GPIO_InitTypeDef GPIO_InitStruct = {0};
-/* USER CODE BEGIN MX_GPIO_Init_1 */
-/* USER CODE END MX_GPIO_Init_1 */
+  /* USER CODE BEGIN MX_GPIO_Init_1 */
+  /* USER CODE END MX_GPIO_Init_1 */
 
   /* GPIO Ports Clock Enable */
   __HAL_RCC_GPIOA_CLK_ENABLE();
@@ -639,14 +683,24 @@ static void MX_GPIO_Init(void)
   __HAL_RCC_GPIOD_CLK_ENABLE();
 
   /*Configure GPIO pin Output Level */
+  HAL_GPIO_WritePin(SPI_CS_GPIO_Port, SPI_CS_Pin, GPIO_PIN_RESET);
+
+  /*Configure GPIO pin Output Level */
   HAL_GPIO_WritePin(GPIOB, LED_2_Pin|LED_1_Pin, GPIO_PIN_RESET);
 
   /*Configure GPIO pin Output Level */
   HAL_GPIO_WritePin(GPIOD, AXIS_X2_DIR_Pin|AXIS_X_DIR_Pin|AXIS_X_PULSE_Pin|AXIS_Y_DIR_Pin
-                          |AXIS_Y_PULSE_Pin, GPIO_PIN_RESET);
+                          |AXIS_Y_PULSE_Pin|LASER_Pin, GPIO_PIN_RESET);
 
   /*Configure GPIO pin Output Level */
   HAL_GPIO_WritePin(GPIOD, AXIS_X_EN_Pin|AXIS_Y_EN_Pin, GPIO_PIN_SET);
+
+  /*Configure GPIO pin : SPI_CS_Pin */
+  GPIO_InitStruct.Pin = SPI_CS_Pin;
+  GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
+  GPIO_InitStruct.Pull = GPIO_NOPULL;
+  GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
+  HAL_GPIO_Init(SPI_CS_GPIO_Port, &GPIO_InitStruct);
 
   /*Configure GPIO pins : LED_2_Pin LED_1_Pin */
   GPIO_InitStruct.Pin = LED_2_Pin|LED_1_Pin;
@@ -656,9 +710,9 @@ static void MX_GPIO_Init(void)
   HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
 
   /*Configure GPIO pins : AXIS_X2_DIR_Pin AXIS_X_DIR_Pin AXIS_X_PULSE_Pin AXIS_Y_DIR_Pin
-                           AXIS_Y_PULSE_Pin */
+                           AXIS_Y_PULSE_Pin LASER_Pin */
   GPIO_InitStruct.Pin = AXIS_X2_DIR_Pin|AXIS_X_DIR_Pin|AXIS_X_PULSE_Pin|AXIS_Y_DIR_Pin
-                          |AXIS_Y_PULSE_Pin;
+                          |AXIS_Y_PULSE_Pin|LASER_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
   GPIO_InitStruct.Pull = GPIO_PULLDOWN;
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
@@ -693,8 +747,8 @@ static void MX_GPIO_Init(void)
   HAL_NVIC_SetPriority(EXTI9_5_IRQn, 0, 0);
   HAL_NVIC_EnableIRQ(EXTI9_5_IRQn);
 
-/* USER CODE BEGIN MX_GPIO_Init_2 */
-/* USER CODE END MX_GPIO_Init_2 */
+  /* USER CODE BEGIN MX_GPIO_Init_2 */
+  /* USER CODE END MX_GPIO_Init_2 */
 }
 
 /* USER CODE BEGIN 4 */

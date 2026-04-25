@@ -14,16 +14,27 @@
 
 
 /* LEDS */
-#define	LED_1_ON		HAL_GPIO_WritePin(GPIOB, GPIO_PIN_13, GPIO_PIN_RESET);
-#define	LED_1_OFF		HAL_GPIO_WritePin(GPIOB, GPIO_PIN_13, GPIO_PIN_SET);
-#define LED_1_TGL		HAL_GPIO_TogglePin(GPIOB, GPIO_PIN_13);
+#define	LED_1_ON			HAL_GPIO_WritePin(GPIOB, GPIO_PIN_13, GPIO_PIN_RESET);
+#define	LED_1_OFF			HAL_GPIO_WritePin(GPIOB, GPIO_PIN_13, GPIO_PIN_SET);
+#define LED_1_TGL			HAL_GPIO_TogglePin(GPIOB, GPIO_PIN_13);
 
-#define	LED_2_ON		HAL_GPIO_WritePin(GPIOB, GPIO_PIN_14, GPIO_PIN_RESET);
-#define	LED_2_OFF		HAL_GPIO_WritePin(GPIOB, GPIO_PIN_14, GPIO_PIN_SET);
-#define LED_2_TGL		HAL_GPIO_TogglePin(GPIOB, GPIO_PIN_14);
+#define	LED_2_ON			HAL_GPIO_WritePin(GPIOB, GPIO_PIN_14, GPIO_PIN_RESET);
+#define	LED_2_OFF			HAL_GPIO_WritePin(GPIOB, GPIO_PIN_14, GPIO_PIN_SET);
+#define LED_2_TGL			HAL_GPIO_TogglePin(GPIOB, GPIO_PIN_14);
 
-#define HOME_OFFSET		10	// 10 mm
+#define	LED_2_ON			HAL_GPIO_WritePin(GPIOB, GPIO_PIN_14, GPIO_PIN_RESET);
+#define	LED_2_OFF			HAL_GPIO_WritePin(GPIOB, GPIO_PIN_14, GPIO_PIN_SET);
 
+#define	LASER_ON			HAL_GPIO_WritePin(GPIOD, GPIO_PIN_5, GPIO_PIN_SET);
+#define	LASER_OFF			HAL_GPIO_WritePin(GPIOD, GPIO_PIN_5, GPIO_PIN_RESET);
+
+
+#define HOME_OFFSET			10	// 10 mm
+#define MOTOR_STEP_ON_PER	200
+#define STEP_ON_ONE_MM		80
+#define ONE_STEP_WIDTH		0.0125		// 1 mm / 80 imp
+#define EPS_PRECISION		0.0250
+#define EPS_IMP_PRECISION	1
 //================================================================================================
 //================================================================================================
 //================================================================================================
@@ -43,6 +54,7 @@ typedef struct counter_curve_t {
 	uint32_t			tgl_up;
 	_Bool 				enabled;
 
+	uint32_t 			current_pos; 	/* Количество импульсов которое двигатель насчитал в отработки процессе последней команды */
 	uint32_t 			target_counter;
 } counter_curve_t;
 
@@ -76,9 +88,16 @@ typedef struct Axis_t {
 	counter_curve_t		c_curve;
 	switch_key_t		sw_key;
 
-	uint32_t 			current_pos;
+	float 				current_pos_coord;
+	SideMV_t 			current_side;
 	uint32_t 			speed;
 	_Bool				working;
+
+	uint32_t 			mach_base_crd;		/* Машинные координаты */
+	uint32_t 			relative_base_crd;	/* Относительные координаты координаты */
+
+	float				limit_start_coord;
+	float				limit_end_coord;
 } Axis_t;
 typedef struct Head_t {
 
