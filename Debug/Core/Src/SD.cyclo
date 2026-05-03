@@ -15,3 +15,4 @@
 ../Core/Src/SD.c:381:9:SD_disk_read	11
 ../Core/Src/SD.c:425:9:SD_disk_write	14
 ../Core/Src/SD.c:480:9:SD_disk_ioctl	25
+../Core/Src/SD.c:591:7:SD_read_line	14

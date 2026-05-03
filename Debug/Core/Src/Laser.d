@@ -28,14 +28,16 @@ Core/Src/Laser.o: ../Core/Src/Laser.c ../Core/Inc/Laser.h \
  ../Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal_tim.h \
  ../Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal_tim_ex.h \
  ../Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal_uart.h \
- ../Core/Inc/LCD1602.h ../Core/Inc/AS5600.h ../Core/Inc/SD.h \
+ ../Core/Inc/LCD1602.h ../Core/Inc/../lib/mach_decl.h \
+ ../Core/Inc/AS5600.h ../Core/Inc/SD.h \
  ../Middlewares/Third_Party/FatFs/src/integer.h \
  ../Middlewares/Third_Party/FatFs/src/diskio.h \
  ../Middlewares/Third_Party/FatFs/src/integer.h ../FATFS/App/fatfs.h \
  ../Middlewares/Third_Party/FatFs/src/ff.h ../FATFS/Target/ffconf.h \
  ../Core/Inc/main.h ../Middlewares/Third_Party/FatFs/src/ff_gen_drv.h \
  ../Middlewares/Third_Party/FatFs/src/diskio.h \
- ../Middlewares/Third_Party/FatFs/src/ff.h ../FATFS/Target/user_diskio.h
+ ../Middlewares/Third_Party/FatFs/src/ff.h ../FATFS/Target/user_diskio.h \
+ ../Core/Src/../lib/t_config.h
 ../Core/Inc/Laser.h:
 ../Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal.h:
 ../Core/Inc/stm32f1xx_hal_conf.h:
@@ -67,6 +69,7 @@ Core/Src/Laser.o: ../Core/Src/Laser.c ../Core/Inc/Laser.h \
 ../Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal_tim_ex.h:
 ../Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal_uart.h:
 ../Core/Inc/LCD1602.h:
+../Core/Inc/../lib/mach_decl.h:
 ../Core/Inc/AS5600.h:
 ../Core/Inc/SD.h:
 ../Middlewares/Third_Party/FatFs/src/integer.h:
@@ -80,3 +83,4 @@ Core/Src/Laser.o: ../Core/Src/Laser.c ../Core/Inc/Laser.h \
 ../Middlewares/Third_Party/FatFs/src/diskio.h:
 ../Middlewares/Third_Party/FatFs/src/ff.h:
 ../FATFS/Target/user_diskio.h:
+../Core/Src/../lib/t_config.h:

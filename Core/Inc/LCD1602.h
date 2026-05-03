@@ -36,7 +36,7 @@ void LCD1602_SetCursor(uint8_t row, uint8_t col);
 void LCD1602_WriteChar(char c);
 void LCD1602_WriteString(const char *str);
 void LCD1602_Backlight(uint8_t state);
-
+void LCD1602_Clear();
 
 
 

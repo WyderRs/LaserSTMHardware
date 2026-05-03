@@ -8,7 +8,7 @@
 
 
 #include "SD.h"
-
+#include "stdbool.h"
 
 
 extern SPI_HandleTypeDef hspi1;
@@ -587,14 +587,53 @@ DRESULT SD_disk_ioctl(BYTE drv, BYTE ctrl, void *buff)
 
 	return res;
 }
+/* Read line */
+_Bool SD_read_line(FIL* fp, void* buff, uint32_t line)
+{
+	_Bool flag_end = false;
+	unsigned char temp_buff[2] = {0, };
+	uint32_t current_line 	= 0;
+	f_lseek(fp, 0);
+	line++;
+	while (1) {
+		UINT sym_eq = 0;
+		uint8_t i 	= 0;
+		UINT sym_cnt = 0;
 
+		while (1) {
+			if (i == 2) i = 0;
+			FRESULT fr = f_read(fp, &(temp_buff)[i], 1, &sym_cnt);
 
-
-
-
-
-
-
+			if (fr != FR_OK || sym_cnt == 0) {
+				if (sym_cnt == 0) {
+					current_line++;
+					flag_end = true;
+				}
+				break; // Ошибка или конец файла
+			}
+			if (current_line == (line - 1)) {
+				if (((temp_buff)[i] != '\r') && ((temp_buff)[i] != '\n')) {
+					((unsigned char*)buff)[sym_eq] = (temp_buff)[i];
+					sym_eq++;
+				}
+			}
+			if ((((temp_buff)[0] == '\n') && ((temp_buff)[1] == '\r')) ||
+					(((temp_buff)[0] == '\r') && ((temp_buff)[1] == '\n'))) {
+				if (current_line == (line - 1)) {
+					current_line++;
+					break;
+				}
+				else {
+					current_line++;
+					break;
+				}
+			}
+			else i++;
+		}
+		if (current_line == line) break;
+	}
+	return flag_end;
+}
 
 
 

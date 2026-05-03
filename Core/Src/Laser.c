@@ -11,6 +11,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include "SD.h"
+#include "../lib/t_config.h"
 
 extern TIM_HandleTypeDef 	htim7;
 extern TIM_HandleTypeDef 	htim6;
@@ -36,6 +37,8 @@ _Bool FLAG[10];
 
 /*************************/
 uint32_t sd_file_rows;
+
+
 /*************************/
 extern volatile uint8_t SD_Timer1, SD_Timer2;
 FATFS fs;
@@ -48,8 +51,6 @@ void MachineSetProgramLimit(Axis_t* ax, float start, float end)
 	ax->limit_start_coord = start;
 	ax->limit_end_coord = end;
 }
-
-
 void LaserCountCurvEN(counter_curve_t* cc, _Bool en)
 {
 	cc->enabled = en;
@@ -112,22 +113,52 @@ _Bool LaserInit()
 	machine.axis[1].sw_key.sw_k_enabled		= true;
 	/****************************/
 
+	/* Устанавливаем программное ограничение на размер рабочей области */
+	MachineSetProgramLimit(&machine.axis[0], 0, MAX_TABLE_X);
+	MachineSetProgramLimit(&machine.axis[1], 0, MAX_TABLE_Y);
+//	MachineSetProgramLimit(&machine.axis[2], 0, MAX_TABLE_Z);
+
 	HAL_TIM_Base_Start_IT(&htim7);
 	HAL_TIM_Base_Start_IT(&htim6);
 	HAL_UART_Receive_IT(&huart1, (uint8_t*)&uart_dat, 1);
 
-
 //	StepMoves(&machine.axis[0], Forward, 100, 20);
 //	PointMoves(&machine, 100, 100, 100);
 
-	HAL_Delay(500);
-	f_mount(&fs, "", 0);
-	f_open(&fil, "test.txt", FA_OPEN_ALWAYS | FA_WRITE | FA_READ);
-	f_lseek(&fil, fil.fsize);
-	f_puts("This is an example text to check SD Card Module with STM32 Blue Pill\n", &fil);
-	f_close(&fil);
+//	FATFS_Init();
+	FRESULT fr1 = f_mount(&fs, "", 0);
 
-	while(1) {}
+	StartGCode(&fil, "code.txt");
+//	FRESULT fr1 = f_mount(&fs, "", 0);
+//	HAL_Delay(100);
+//	FRESULT fr2 = f_open(&fil, "code.txt", FA_READ | FA_OPEN_EXISTING);
+//	HAL_Delay(100);
+//	uint8_t j = 0;
+//	for (uint8_t i = 1; i < 19; i++) {
+//		if (j == 2) {
+//			LCD1602_Clear();
+//			j = 0;
+//		}
+//		SD_read_line(&fil, &buffer, i);
+//		LCD1602_SetCursor(j++, 0);
+//		LCD1602_WriteString((char*)&buffer);
+//		HAL_Delay(1000);
+//		memset(&buffer, 0, sizeof(buffer));
+//	}
+//	//	f_puts("This is an example text to check SD Card Module with STM32 Blue Pill\n", &fil);
+//	f_close(&fil);
+
+
+
+
+
+
+
+
+
+
+
+//	while(1) {}
 
 	return 0;
 }
@@ -173,74 +204,6 @@ void LaserLoop()
 		}
 		if (FLAG[5])
 		{
-			sd_file_rows = 1;
-			for (uint32_t row = 0; row < sd_file_rows; row++) {
-				uint8_t col = 0;
-
-				if ((uart_data[col] == 'G') && (uart_data[col + 1] == '0')) {
-					uint32_t X = 0;
-					uint32_t Y = 0;
-					uint32_t F = 0;
-
-
-					col += 2;
-					if ((uart_data[col] == ' ')) col++;
-
-					if (uart_data[col] == 'X') {
-						col++;
-
-						uint8_t i = col;
-						char st_pos[10] = {'\0', };
-						uint8_t j = 0;
-						while ((uart_data[i] != ' ') && (uart_data[i] != 'Y') && (uart_data[i] != 'F') && (uart_data[i] != ';')) {
-							st_pos[j] = uart_data[i];
-							i++;
-							j++;
-						}
-						col = ++i;
-
-						X = atof(st_pos);
-					}
-					if (uart_data[col] == 'Y') {
-						col++;
-
-						uint8_t i = col;
-						char st_pos[10] = {'\0', };
-						uint8_t j = 0;
-						while ((uart_data[i] != ' ') && (uart_data[i] != 'Y') && (uart_data[i] != 'F') && (uart_data[i] != ';')) {
-							st_pos[j] = uart_data[i];
-							i++;
-							j++;
-						}
-						col = ++i;
-
-						Y = atof(st_pos);
-					}
-					if (uart_data[col] == 'F') {
-						col++;
-
-						uint8_t i = col;
-						char st_pos[10] = {'\0', };
-						uint8_t j = 0;
-						while ((uart_data[i] != ' ') && (uart_data[i] != 'Y') && (uart_data[i] != 'F') && (uart_data[i] != ';')) {
-							st_pos[j] = uart_data[i];
-							i++;
-							j++;
-						}
-						col = ++i;
-
-						F = atof(st_pos);
-					}
-
-					PointMoves(&machine, X, Y, F);
-
-				}
-				else if (0) {
-
-				}
-			}
-
-
 			FLAG[5] = false;
 		}
 		if (FLAG[6])
@@ -262,6 +225,15 @@ void MachineRelativeSet(Axis_t* ax, uint32_t var) {
 	ax->mach_base_crd = var;
 }
 
+void SetFeedRate(float fd) {
+	machine.FeedRate = fd;
+	fd = 625.0 / fd;						//625=50000/80
+	LaserCountCurvTgl(&machine.axis[0].c_curve, fd);
+	LaserCountCurvTgl(&machine.axis[1].c_curve, fd);
+//	LaserCountCurvTgl(&ax->c_curve, fd);
+
+	return;
+}
 void StepMoves(Axis_t* ax, SideMV_t sd, uint32_t length, uint32_t sp)
 {
 	/* Если нажат концевик и при этом направление от него, или концевик не нажат то...*/
@@ -385,6 +357,7 @@ void PointMoves(Machine_t* mh, uint32_t x, uint32_t y, uint32_t sp)
 			}
 			if (flag[0] && flag[1]) break;
 
+			/* Концевики */
 			for (uint8_t i = 0; i < 2; i++) {
 				if (mh->axis[i].sw_key.sw_k_state) {
 					mh->axis[i].drive.counter = 0;
@@ -414,8 +387,6 @@ void PointMoves(Machine_t* mh, uint32_t x, uint32_t y, uint32_t sp)
 					break;
 				}
 			}
-
-
 		}
 	}
 	else {}
@@ -470,12 +441,6 @@ _Bool GoHome()
 
 	machine.axis[0].current_side = Forward;
 	machine.axis[1].current_side = Forward;
-
-	/* Устанавливаем программное ограничение на размер рабочей области */
-
-	MachineSetProgramLimit(&machine.axis[0], 0, 170);
-	MachineSetProgramLimit(&machine.axis[1], 0, 130);
-
 
 	return 0;
 }

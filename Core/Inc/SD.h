@@ -41,6 +41,8 @@ DSTATUS SD_disk_status (BYTE pdrv);
 DRESULT SD_disk_read (BYTE pdrv, BYTE* buff, DWORD sector, UINT count);
 DRESULT SD_disk_write (BYTE pdrv, const BYTE* buff, DWORD sector, UINT count);
 DRESULT SD_disk_ioctl (BYTE pdrv, BYTE cmd, void* buff);
+/* Functions */
+_Bool SD_read_line(FIL* fp, void* buff, uint32_t line);
 
 #define SPI_TIMEOUT 1000
 

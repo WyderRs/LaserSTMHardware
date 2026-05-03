@@ -11,6 +11,7 @@
 
 #include "stm32f1xx_hal.h"
 #include "LCD1602.h"
+#include "../lib/mach_decl.h"
 
 
 /* LEDS */
@@ -35,6 +36,10 @@
 #define ONE_STEP_WIDTH		0.0125		// 1 mm / 80 imp
 #define EPS_PRECISION		0.0250
 #define EPS_IMP_PRECISION	1
+
+
+
+
 //================================================================================================
 //================================================================================================
 //================================================================================================
@@ -106,6 +111,9 @@ typedef struct Machine_t {
 	Head_t 				head;
 	Axis_t				axis[2];
 
+
+
+	float 				FeedRate;
 } Machine_t;
 
 
@@ -143,7 +151,7 @@ _Bool GoHome();
 void StepMoves(Axis_t* ax, SideMV_t sd, uint32_t length, uint32_t sp);
 void ContMoves(Axis_t* ax, SideMV_t sd, uint32_t sp);
 void PointMoves(Machine_t* mh, uint32_t x, uint32_t y, uint32_t sp);
-
+void SetFeedRate(float fd);
 
 
 

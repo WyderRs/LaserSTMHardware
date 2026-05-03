@@ -1,0 +1,11 @@
+../Core/lib/g_code.c:18:6:GC_G0	1
+../Core/lib/g_code.c:23:6:GC_G1	1
+../Core/lib/g_code.c:28:6:GC_G2	1
+../Core/lib/g_code.c:31:6:GC_G3	1
+../Core/lib/g_code.c:34:6:GC_M3	1
+../Core/lib/g_code.c:37:6:GC_M5	1
+../Core/lib/g_code.c:40:6:GC_M30	1
+../Core/lib/g_code.c:46:6:GC_S	1
+../Core/lib/g_code.c:49:6:GC_F	1
+../Core/lib/g_code.c:54:6:GC_G28	8
+../Core/lib/g_code.c:190:6:G_CommandString	56
