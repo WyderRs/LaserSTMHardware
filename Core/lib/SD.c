@@ -13,6 +13,10 @@
 
 extern SPI_HandleTypeDef hspi1;
 
+/* */
+FATFS fs;
+FIL fil;
+/* */
 
 #define TRUE  1
 #define FALSE 0
@@ -69,7 +73,7 @@ static uint8_t SD_ReadyWait(void)
 	uint8_t res;
 
 	/* 500ms 카운터 준비 */
-	SD_Timer2 = 50;
+	SD_Timer2 = 5000;
 	SPI_RxByte();
 
 	do
@@ -143,7 +147,7 @@ static BYTE SD_RxDataBlock(BYTE *buff, UINT btr)
 	uint8_t token;
 
 	/* 100ms 타이머 */
-	SD_Timer1 = 10;
+	SD_Timer1 = 1000;
 
 	/* 응답 대기 */
 	do
@@ -208,7 +212,7 @@ static BYTE SD_TxDataBlock(const BYTE *buff, BYTE token)
 		}
 
 		/* SPI 수신 버퍼 Clear - 타임아웃 추가 */
-		SD_Timer1 = 20; /* 200ms 타임아웃 */
+		SD_Timer1 = 2000; /* 200ms 타임아웃 */
 		while (SPI_RxByte() == 0 && SD_Timer1);
 	}
 
@@ -291,7 +295,7 @@ DSTATUS SD_disk_initialize(BYTE drv)
 	if (SD_SendCmd(CMD0, 0) == 1)
 	{
 		/* 타이머 1초 설정 */
-		SD_Timer1 = 100;
+		SD_Timer1 = 10000;
 
 		/* SD 인터페이스 동작 조건 확인 */
 		if (SD_SendCmd(CMD8, 0x1AA) == 1)
@@ -635,6 +639,12 @@ _Bool SD_read_line(FIL* fp, void* buff, uint32_t line)
 	return flag_end;
 }
 
+FRESULT SD_Mount(const TCHAR* path, BYTE opt) {
+	return f_mount(&fs, path, opt);
+}
+FRESULT SD_DeMount(const TCHAR* path, BYTE opt) {
+	return f_mount(NULL, path, opt);
+}
 
 
 

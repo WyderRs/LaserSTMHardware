@@ -1,1 +1,9 @@
-../Core/lib/funcG.c:234:6:StartGCode	24	static
+../Core/lib/funcG.c:26:6:StartGCode	24	static
+../Core/lib/funcG.c:59:6:GoHome	16	static
+../Core/lib/funcG.c:197:6:StepMoves	32	static
+../Core/lib/funcG.c:252:6:PointMoves	80	static
+../Core/lib/funcG.c:411:11:NormalizeAngle	16	static
+../Core/lib/funcG.c:375:6:CircleMove	192	static
+../Core/lib/funcG.c:500:6:ContMoves	24	static
+../Core/lib/funcG.c:511:6:SetFeedRate	16	static
+../Core/lib/funcG.c:520:6:G_CommandString	136	static

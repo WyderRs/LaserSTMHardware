@@ -5,19 +5,25 @@
 
 # Add inputs and outputs from these tool invocations to the build variables 
 C_SRCS += \
+../Core/lib/LCD1602.c \
+../Core/lib/SD.c \
 ../Core/lib/funcG.c \
 ../Core/lib/g_code.c \
-../Core/lib/t_config.c 
+../Core/lib/machine.c 
 
 OBJS += \
+./Core/lib/LCD1602.o \
+./Core/lib/SD.o \
 ./Core/lib/funcG.o \
 ./Core/lib/g_code.o \
-./Core/lib/t_config.o 
+./Core/lib/machine.o 
 
 C_DEPS += \
+./Core/lib/LCD1602.d \
+./Core/lib/SD.d \
 ./Core/lib/funcG.d \
 ./Core/lib/g_code.d \
-./Core/lib/t_config.d 
+./Core/lib/machine.d 
 
 
 # Each subdirectory must supply rules for building sources it contributes
@@ -27,7 +33,7 @@ Core/lib/%.o Core/lib/%.su Core/lib/%.cyclo: ../Core/lib/%.c Core/lib/subdir.mk
 clean: clean-Core-2f-lib
 
 clean-Core-2f-lib:
-	-$(RM) ./Core/lib/funcG.cyclo ./Core/lib/funcG.d ./Core/lib/funcG.o ./Core/lib/funcG.su ./Core/lib/g_code.cyclo ./Core/lib/g_code.d ./Core/lib/g_code.o ./Core/lib/g_code.su ./Core/lib/t_config.cyclo ./Core/lib/t_config.d ./Core/lib/t_config.o ./Core/lib/t_config.su
+	-$(RM) ./Core/lib/LCD1602.cyclo ./Core/lib/LCD1602.d ./Core/lib/LCD1602.o ./Core/lib/LCD1602.su ./Core/lib/SD.cyclo ./Core/lib/SD.d ./Core/lib/SD.o ./Core/lib/SD.su ./Core/lib/funcG.cyclo ./Core/lib/funcG.d ./Core/lib/funcG.o ./Core/lib/funcG.su ./Core/lib/g_code.cyclo ./Core/lib/g_code.d ./Core/lib/g_code.o ./Core/lib/g_code.su ./Core/lib/machine.cyclo ./Core/lib/machine.d ./Core/lib/machine.o ./Core/lib/machine.su
 
 .PHONY: clean-Core-2f-lib
 

@@ -1,4 +1,4 @@
-Core/Src/SD.o: ../Core/Src/SD.c ../Core/Inc/SD.h \
+Core/lib/SD.o: ../Core/lib/SD.c ../Core/lib/SD.h \
  ../Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal.h \
  ../Core/Inc/stm32f1xx_hal_conf.h \
  ../Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal_rcc.h \
@@ -35,7 +35,7 @@ Core/Src/SD.o: ../Core/Src/SD.c ../Core/Inc/SD.h \
  ../Core/Inc/main.h ../Middlewares/Third_Party/FatFs/src/ff_gen_drv.h \
  ../Middlewares/Third_Party/FatFs/src/diskio.h \
  ../Middlewares/Third_Party/FatFs/src/ff.h ../FATFS/Target/user_diskio.h
-../Core/Inc/SD.h:
+../Core/lib/SD.h:
 ../Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal.h:
 ../Core/Inc/stm32f1xx_hal_conf.h:
 ../Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal_rcc.h:

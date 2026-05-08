@@ -17,18 +17,14 @@
   */
 /* USER CODE END Header */
 /* Includes ------------------------------------------------------------------*/
+#include <module.h>
 #include "main.h"
 #include "fatfs.h"
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 #include <stdbool.h>
-#include "LCD1602.h"
-#include "Laser.h"
-#include "AS5600.h"
 #include "module.h"
-#include "stdio.h"
-#include "SD.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -38,7 +34,7 @@
 
 /* Private define ------------------------------------------------------------*/
 /* USER CODE BEGIN PD */
-#define AS5600_UNPACK_ANGLE(msb, lsb)  ((uint16_t)((msb << 8) | lsb) & 0x0FFF)
+
 /* USER CODE END PD */
 
 /* Private macro -------------------------------------------------------------*/
@@ -90,54 +86,6 @@ static void MX_SPI1_Init(void);
 
 
 
-uint8_t Scan_AS5600_I2C(I2C_HandleTypeDef *hi2c)
-{
-    uint8_t address;
-    HAL_StatusTypeDef status;
-
-    /* Try the default address first */
-    address = AS5600_ADDR;
-    status = HAL_I2C_IsDeviceReady(hi2c, address << 1, 1, 1000);
-    if (status == HAL_OK) {
-        return address;               // found at 0x36
-    }
-
-    /* No AS5600 detected */
-    return 0xFF;
-}
-
-HAL_StatusTypeDef AS5600_WriteReg(I2C_HandleTypeDef *hi2c, uint8_t reg, uint8_t data)
-{
-    return HAL_I2C_Mem_Write(hi2c, AS5600_ADDR << 1, reg, I2C_MEMADD_SIZE_8BIT, &data, 1, HAL_MAX_DELAY);
-}
-
-HAL_StatusTypeDef AS5600_ReadReg(I2C_HandleTypeDef *hi2c, uint8_t reg, uint8_t *pData)
-{
-    return HAL_I2C_Mem_Read(hi2c, AS5600_ADDR << 1, reg, I2C_MEMADD_SIZE_8BIT, pData, 1, HAL_MAX_DELAY);
-}
-
-HAL_StatusTypeDef AS5600_ReadRawValue(I2C_HandleTypeDef *hi2c, uint16_t *pAngle)
-{
-    uint8_t lsb, msb;
-    HAL_StatusTypeDef status;
-
-    status = AS5600_ReadReg(hi2c, AS5600_ANGLE_L_REG, &lsb);
-    if (status != HAL_OK) return status;
-
-    status = AS5600_ReadReg(hi2c, AS5600_ANGLE_H_REG, &msb);
-    if (status != HAL_OK) return status;
-
-    *pAngle = AS5600_UNPACK_ANGLE(msb, lsb);
-    return HAL_OK;
-}
-
-
-
-
-uint16_t ADC_Value;
-
-
-
 
 /* USER CODE END 0 */
 
@@ -182,57 +130,7 @@ int main(void)
   MX_FATFS_Init();
   /* USER CODE BEGIN 2 */
 
-
-  LED_1_OFF;
-  LED_2_OFF;
-
-  LCD1602_Init();
-
-//  HAL_Delay(1000);
-
-//  uint16_t rawAngle = 0;
-//
-//  _Bool flag_t = 0;
-//
-//  if (flag_t) {
-//  HAL_ADC_Start_IT(&hadc1);
-//  HAL_TIM_Base_Start_IT(&htim8);
-//  }
-//  while(flag_t)
-//  {
-//	  LCD1602_SetCursor(0, 0);
-//	  char buf1[] = {0};
-//	  AS5600_ReadRawValue(&hi2c2, &rawAngle);
-//	  sprintf(buf1, "%d    ", rawAngle);
-//	  LCD1602_WriteString(buf1);
-//
-//
-//	  LCD1602_SetCursor(1, 0);
-//	  char buf2[] = {0};
-//	  AS5600_ReadRawValue(&hi2c2, &rawAngle);
-//	  sprintf(buf2, "%.2f    ", rawAngle * AS5600_RAW_TO_DEGREES);
-//	  LCD1602_WriteString(buf2);
-//
-//
-//	  LCD1602_SetCursor(0, 7);
-//	  char buf3[] = {0};
-//	  sprintf(buf3, "%d    ", ADC_Value);
-//	  LCD1602_WriteString(buf3);
-//
-//
-//	  LCD1602_SetCursor(1, 7);
-//	  char buf4[] = {0};
-//	  sprintf(buf4, "%.2f    ", ADC_Value * AS5600_RAW_TO_DEGREES);
-//	  LCD1602_WriteString(buf4);
-//
-//
-//
-//	  HAL_Delay(500);
-//  }
-
-
-  if (LaserInit())
-  {
+  if (ModuleInit()) {
   	  while(1) {
   		  LED_1_TGL;
   		  LED_2_TGL;
@@ -240,7 +138,7 @@ int main(void)
   	  }
   }
 
-  LaserLoop();
+  ModuleLoop();
 
 
   /* USER CODE END 2 */
@@ -249,11 +147,6 @@ int main(void)
   /* USER CODE BEGIN WHILE */
   while (1)
   {
-
-
-
-
-
 
     /* USER CODE END WHILE */
 
@@ -752,21 +645,6 @@ static void MX_GPIO_Init(void)
 }
 
 /* USER CODE BEGIN 4 */
-
-void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef* hadc)
-{
-	if(hadc->Instance == ADC1)
-	{
-		ADC_Value = HAL_ADC_GetValue(&hadc1);
-	}
-
-}
-
-
-
-
-
-
 
 
 

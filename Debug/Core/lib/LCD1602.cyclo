@@ -1,0 +1,8 @@
+../Core/lib/LCD1602.c:16:13:lcd_write_nibble	1
+../Core/lib/LCD1602.c:32:13:lcd_write_byte	5
+../Core/lib/LCD1602.c:47:7:LCD1602_Init	1
+../Core/lib/LCD1602.c:77:6:LCD1602_SetCursor	1
+../Core/lib/LCD1602.c:83:6:LCD1602_WriteChar	1
+../Core/lib/LCD1602.c:88:6:LCD1602_WriteString	2
+../Core/lib/LCD1602.c:93:6:LCD1602_Backlight	2
+../Core/lib/LCD1602.c:99:6:LCD1602_Clear	1

@@ -11,28 +11,28 @@
 /*
  * GC 		- G-Code
  * GC_XX 	- XX = code
+ * S - параметр для регулировки мощности лазера
  * */
 
 
 #include "stm32f1xx.h"
-#include "t_config.h"
 #include <stdlib.h>
+#include "funcG.h"
 
 
-
-struct Common_param {
-	float X;
-	float Y;
-	float Z;
-
-	float S;
-	float F;
-
-	void (*FeedRate) (float fd);
-	void (*MovePoint) (float x, float y, float z);
-	void (*MoveHome) (float x, float y, float z);
-
-} Common_param;
+//typedef struct Common_param_t {
+//	float X;
+//	float Y;
+//	float Z;
+//
+//	float S;
+//	float F;
+//
+//	void (*FeedRate) (float fd);
+//	void (*MovePoint) (float x, float y, float z);
+//	void (*MoveHome) (float x, float y, float z);
+//
+//} Common_param_t;
 
 typedef enum GC_Axis {
 	GC_ALL_AXISES = 0,
@@ -45,8 +45,8 @@ typedef enum GC_Axis {
 
 void GC_G0 (float GX, float GY, float GZ);
 void GC_G1 (float GX, float GY, float GZ);
-void GC_G2 (void);
-void GC_G3 (void);
+void GC_G2(float x1, float y1, float r);
+void GC_G3(float x1, float y1, float r);
 void GC_G28(GC_Axis);
 
 void GC_M3 (void);
@@ -55,8 +55,6 @@ void GC_M30(void);
 
 void GC_S (float s);
 void GC_F (float s);
-
-void G_CommandString(unsigned char*);
 
 
 

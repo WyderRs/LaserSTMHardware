@@ -1,0 +1,16 @@
+../Core/lib/machine.c:23:6:MachineSetProgramLimit	1
+../Core/lib/machine.c:28:6:ModuleCountCurvEN	1
+../Core/lib/machine.c:33:6:ModuleCountCurvTgl	1
+../Core/lib/machine.c:37:6:ModuleDriverDirection	1
+../Core/lib/machine.c:42:6:ModuleDriverEnable	1
+../Core/lib/machine.c:47:6:Machine_SW_Set	1
+../Core/lib/machine.c:51:6:MachineCoordSet	1
+../Core/lib/machine.c:54:6:MachineRelativeSet	1
+../Core/lib/machine.c:57:6:MachineLaserState	1
+../Core/lib/machine.c:62:6:GlbtimDelay	2
+../Core/lib/machine.c:66:6:Machine_Start_MainCounter	1
+../Core/lib/machine.c:69:6:Machine_Stop_MainCounter	1
+../Core/lib/machine.c:72:6:Machine_Start_SupCounter	1
+../Core/lib/machine.c:75:6:Machine_Stop_SupCounter	1
+../Core/lib/machine.c:83:6:HAL_TIM_PeriodElapsedCallback	10
+../Core/lib/machine.c:130:6:HAL_GPIO_EXTI_Callback	9
