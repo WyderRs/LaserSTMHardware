@@ -249,244 +249,414 @@ void StepMoves(Axis_t* ax, SideMV_t sd, uint32_t length, uint32_t sp)
 	ModuleCountCurvEN(&ax->c_curve, false);
 	ModuleDriverEnable(&ax->drive, false);
 }
-void PointMoves(Machine_t* mh, float x, float y, uint32_t sp)
-{
-	/* Если нажат концевик и при этом направление от него, или концевик не нажат то... */
-	if (1)
-	{
-		mh->axis[0].sw_key.sw_k_state = false;
-		mh->axis[1].sw_key.sw_k_state = false;
+//void PointMoves(Machine_t* mh, float x, float y, uint32_t sp)
+//{
+//	SideMV_t cur_side[2];
+//	if (1)
+//	{
+//		mh->axis[0].sw_key.sw_k_state = false;
+//		mh->axis[1].sw_key.sw_k_state = false;
+//
+//		mh->axis[0].drive.counter = 0;
+//		mh->axis[1].drive.counter = 0;
+//
+//		if (x > mh->axis[0].current_pos_coord) {
+//			ModuleDriverDirection(&mh->axis[0].drive, Forward);
+//			mh->axis[0].current_side = Forward;
+//			cur_side[0] = Forward;
+//		}
+//		else {
+//			ModuleDriverDirection(&mh->axis[0].drive, BackForward);
+//			mh->axis[0].current_side = BackForward;
+//			cur_side[0] = BackForward;
+//		}
+//
+//		if (y > mh->axis[1].current_pos_coord) {
+//			ModuleDriverDirection(&mh->axis[1].drive, Forward);
+//			mh->axis[1].current_side = Forward;
+//			cur_side[1] = Forward;
+//		}
+//		else {
+//			ModuleDriverDirection(&mh->axis[1].drive, BackForward);
+//			mh->axis[1].current_side = BackForward;
+//			cur_side[1] = BackForward;
+//		}
+//
+//		/*
+//		 * 50000 	- частота импульсов таймера
+//		 * sp 		- скорость в мм/с
+//		 * */
+//		float x1 		= machine.axis[0].current_pos_coord;
+//		float y1 		= machine.axis[1].current_pos_coord;
+//
+//		float tgl_up	= 50000 / (sp * STEP_ON_ONE_MM);
+//		/* Приращение должно быть положительным */
+//		float dx 		= x - x1;
+//		float dy 		= y - y1;
+//		/* Ищем короткий путь */
+//		float L 		= sqrt((dx * dx) + (dy * dy));
+//		/* Если идем в ту же точку, где стоим, то выходим */
+//		if (L == 0) {
+//			ModuleDriverEnable(&mh->axis[0].drive, false);
+//			ModuleDriverEnable(&mh->axis[1].drive, false);
+//			return;
+//		}
+//		else {
+//			ModuleDriverEnable(&mh->axis[0].drive, true);
+//			ModuleDriverEnable(&mh->axis[1].drive, true);
+//		}
+//		/* В случае нахождения в той же точке по оси говорим что приращение равно длине L */
+//		/* Это сделано для получения коээфициента равного 1 - максимальная заданная скорость */
+////		if (dx <= EPS_PRECISION * 2) dx = L;
+////		if (dy <= EPS_PRECISION * 2) dy = L;
+//
+//		if (dx <= 0) dx = L;
+//		if (dy <= 0) dy = L;
+//		/* Находим коэфициенты задающие скорость движения оси */
+//		float spp1 = L / fabs(dx);
+//		float spp2 = L / fabs(dy);
+//		/* Применяем коэфициенты*/
+//		uint32_t tgl_up1 = tgl_up * fabs(spp1);
+//		uint32_t tgl_up2 = tgl_up * fabs(spp2);
+//		/* Ограничение минимальной скорости */
+//		if (tgl_up1 <= 0) tgl_up1 = 1;
+//		if (tgl_up2 <= 0) tgl_up2 = 1;
+//
+//		ModuleCountCurvTgl(&mh->axis[0].c_curve, tgl_up1);
+//		ModuleCountCurvTgl(&mh->axis[1].c_curve, tgl_up2);
+//
+//		ModuleCountCurvEN(&mh->axis[0].c_curve, true);
+//		ModuleCountCurvEN(&mh->axis[1].c_curve, true);
+//
+//		_Bool flag[2] = {false, };
+//		/* Ожидаем пока не доедем до требуемой точки */
+//		while (1) {
+//
+////			if ((mh->axis[0].current_pos_coord >= (x - EPS_PRECISION)) && (mh->axis[0].current_pos_coord <= (x + EPS_PRECISION))) {
+////				ModuleCountCurvEN(&mh->axis[0].c_curve, false);
+////				flag[0] = true;
+////			}
+////			if ((mh->axis[1].current_pos_coord >= (y - EPS_PRECISION)) && (mh->axis[1].current_pos_coord <= (y + EPS_PRECISION))) {
+////				ModuleCountCurvEN(&mh->axis[1].c_curve, false);
+////				flag[1] = true;
+////			}
+//
+//			if (cur_side[0] == Forward) {
+//				if (mh->axis[0].current_pos_coord >= x) {
+//					ModuleCountCurvEN(&mh->axis[0].c_curve, false);
+//					flag[0] = true;
+//				}
+//			} else if (cur_side[0] == BackForward) {
+//				if (mh->axis[0].current_pos_coord <= x) {
+//					ModuleCountCurvEN(&mh->axis[0].c_curve, false);
+//					flag[0] = true;
+//				}
+//			}
+//			if (cur_side[1] == Forward) {
+//				if (mh->axis[1].current_pos_coord >= y) {
+//					ModuleCountCurvEN(&mh->axis[1].c_curve, false);
+//					flag[1] = true;
+//				}
+//			} else if (cur_side[1] == BackForward) {
+//				if (mh->axis[1].current_pos_coord <= y) {
+//					ModuleCountCurvEN(&mh->axis[1].c_curve, false);
+//					flag[1] = true;
+//				}
+//			}
+//
+//			if (flag[0] && flag[1]) break;
+//
+//			/* Концевики */
+//			for (uint8_t i = 0; i < 2; i++) {
+//				if (mh->axis[i].sw_key.sw_k_state) {
+//					mh->axis[i].drive.counter = 0;
+//
+//					ContMoves(&mh->axis[i], !mh->axis[i].current_side, 20);
+//					while (!mh->axis[i].sw_key.sw_k_state) {}
+//					GlbtimDelay(500);
+//					mh->axis[i].sw_key.sw_k_enabled			= false;
+//					mh->axis[i].drive.counter 				= 0;
+//					StepMoves(&mh->axis[i], Forward, HOME_OFFSET, 20);
+//					GlbtimDelay(500);
+//					/* Сброс события прерывания */
+//					EXTI->PR 								= mh->axis[i].sw_key.m_sw_k_pin;
+//					mh->axis[i].sw_key.sw_k_enabled			= true;
+//					GlbtimDelay(500);
+//
+//					break;
+//				}
+//
+//				/* Проверка на позицию внутри рабочей */
+//				if (mh->axis[i].current_pos_coord < mh->axis[i].limit_start_coord) {
+//					ModuleCountCurvEN(&mh->axis[i].c_curve, false);
+//					break;
+//				}
+//				else if (mh->axis[i].current_pos_coord > mh->axis[i].limit_end_coord) {
+//					ModuleCountCurvEN(&mh->axis[i].c_curve, false);
+//					break;
+//				}
+//			}
+//		}
+//	}
+//	else {}
+//
+//	ModuleDriverEnable(&mh->axis[0].drive, false);
+//	ModuleDriverEnable(&mh->axis[1].drive, false);
+//}
+void PointMoves(Machine_t* mh, float x, float y, uint32_t sp) {
+    SideMV_t cur_side[2];
+    float dx, dy, L;
+    float vx, vy;              // Скорости по осям (мм/с)
+    uint32_t tgl_up1, tgl_up2; // Частоты импульсов для осей (в тактах таймера)
+    _Bool flag[2] = {false, false};
 
-		mh->axis[0].drive.counter = 0;
-		mh->axis[1].drive.counter = 0;
+    // Сброс состояний
+    mh->axis[0].sw_key.sw_k_state = false;
+    mh->axis[1].sw_key.sw_k_state = false;
+    mh->axis[0].drive.counter = 0;
+    mh->axis[1].drive.counter = 0;
 
-		if (x > mh->axis[0].current_pos_coord) {
-			ModuleDriverDirection(&mh->axis[0].drive, Forward);
-			mh->axis[0].current_side = Forward;
-		}
-		else {
-			ModuleDriverDirection(&mh->axis[0].drive, BackForward);
-			mh->axis[0].current_side = BackForward;
-		}
+    // Определяем направление движения
+    dx = x - mh->axis[0].current_pos_coord;
+    dy = y - mh->axis[1].current_pos_coord;
 
-		if (y > mh->axis[1].current_pos_coord) {
-			ModuleDriverDirection(&mh->axis[1].drive, Forward);
-			mh->axis[1].current_side = Forward;
-		}
-		else {
-			ModuleDriverDirection(&mh->axis[1].drive, BackForward);
-			mh->axis[1].current_side = BackForward;
-		}
+    if (dx >= 0) {
+        ModuleDriverDirection(&mh->axis[0].drive, Forward);
+        mh->axis[0].current_side = Forward;
+        cur_side[0] = Forward;
+    } else {
+        ModuleDriverDirection(&mh->axis[0].drive, BackForward);
+        mh->axis[0].current_side = BackForward;
+        cur_side[0] = BackForward;
+    }
 
-		ModuleDriverEnable(&mh->axis[0].drive, true);
-		ModuleDriverEnable(&mh->axis[1].drive, true);
+    if (dy >= 0) {
+        ModuleDriverDirection(&mh->axis[1].drive, Forward);
+        mh->axis[1].current_side = Forward;
+        cur_side[1] = Forward;
+    } else {
+        ModuleDriverDirection(&mh->axis[1].drive, BackForward);
+        mh->axis[1].current_side = BackForward;
+        cur_side[1] = BackForward;
+    }
 
-		/*
-		 * 50000 - частота импульсов таймера
-		 * sp - скорость в мм/с
-		 *
-		 * */
-		float x1 = machine.axis[0].current_pos_coord;
-		float y1 = machine.axis[1].current_pos_coord;
+    // Длина вектора перемещения
+    L = sqrtf((dx * dx) + (dy * dy));
 
-		float tgl_up	= 50000 / (sp * STEP_ON_ONE_MM);
-		/* Приращение должно быть положительным */
-		float dx = x - x1;
-		float dy = y - y1;
-		/* Ищем короткий путь */
-		float L = sqrt((dx * dx) + (dy * dy));
-		/* Если идем в туже точку, где стоим, то выходим */
-		if (L == 0) {
-			ModuleDriverEnable(&mh->axis[0].drive, false);
-			ModuleDriverEnable(&mh->axis[1].drive, false);
-			return;
-		}
-		/* В случае нахождения в той же точке по оси говорим что приращение равно длине L */
-		/* Это сделано для получения коээфициента равного 1 - максимальная заданная скорость */
-		if (dx <= EPS_PRECISION * 2) dx = L;
-		if (dy <= EPS_PRECISION * 2) dy = L;
-		/* Находим коэфициенты задающие скорость движения оси */
-		float spp1 = L / fabs(dx);
-		float spp2 = L / fabs(dy);
-		/* Применяем коэфициенты*/
-		uint32_t tgl_up1 = tgl_up * fabs(spp1);
-		uint32_t tgl_up2 = tgl_up * fabs(spp2);
-		/* Ограничение минимальной скорости */
-		if (tgl_up1 <= 0) tgl_up1 = 1;
-		if (tgl_up2 <= 0) tgl_up2 = 1;
+    // Если точка совпадает — выходим
+    if (L <= EPS_PRECISION) {
+        ModuleDriverEnable(&mh->axis[0].drive, false);
+        ModuleDriverEnable(&mh->axis[1].drive, false);
+        return;
+    }
 
-		ModuleCountCurvTgl(&mh->axis[0].c_curve, tgl_up1);
-		ModuleCountCurvTgl(&mh->axis[1].c_curve, tgl_up2);
+    // Вычисляем скорости по осям (пропорционально проекциям)
+    vx = sp * (fabsf(dx) / L);  // Скорость по X
+    vy = sp * (fabsf(dy) / L);  // Скорость по Y
 
-		ModuleCountCurvEN(&mh->axis[0].c_curve, true);
-		ModuleCountCurvEN(&mh->axis[1].c_curve, true);
+    // Вычисляем частоты импульсов: tgl_up = частота_таймера / (скорость * шаги_на_мм)
+    // 50000 — частота таймера (Гц = импульсов/сек)
+    tgl_up1 = (uint32_t)(50000.0f / (vx * STEP_ON_ONE_MM));
+    tgl_up2 = (uint32_t)(50000.0f / (vy * STEP_ON_ONE_MM));
 
-		_Bool flag[2] = {false, };
-		/* Ожидаем пока не доедем до требуемой точки */
-		while (1) {
+    // Ограничение минимальной скорости (защита от слишком малых шагов)
+//    if (tgl_up1 > MAX_TGL_UP) tgl_up1 = MAX_TGL_UP;
+//    if (tgl_up2 > MAX_TGL_UP) tgl_up2 = MAX_TGL_UP;
+//
+//    if (tgl_up1 < MIN_TGL_UP) tgl_up1 = MIN_TGL_UP;
+//    if (tgl_up2 < MIN_TGL_UP) tgl_up2 = MIN_TGL_UP;
 
-			if ((mh->axis[0].current_pos_coord >= (x - EPS_PRECISION)) && (mh->axis[0].current_pos_coord <= (x + EPS_PRECISION))) {
-				ModuleCountCurvEN(&mh->axis[0].c_curve, false);
-				flag[0] = true;
-			}
-			if ((mh->axis[1].current_pos_coord >= (y - EPS_PRECISION)) && (mh->axis[1].current_pos_coord <= (y + EPS_PRECISION))) {
-				ModuleCountCurvEN(&mh->axis[1].c_curve, false);
-				flag[1] = true;
-			}
-			if (flag[0] && flag[1]) break;
+    // Устанавливаем частоты и включаем движение
+    ModuleCountCurvTgl(&mh->axis[0].c_curve, tgl_up1);
+    ModuleCountCurvTgl(&mh->axis[1].c_curve, tgl_up2);
+    ModuleCountCurvEN(&mh->axis[0].c_curve, true);
+    ModuleCountCurvEN(&mh->axis[1].c_curve, true);
+    ModuleDriverEnable(&mh->axis[0].drive, true);
+    ModuleDriverEnable(&mh->axis[1].drive, true);
 
-			/* Концевики */
-			for (uint8_t i = 0; i < 2; i++) {
-				if (mh->axis[i].sw_key.sw_k_state) {
-					mh->axis[i].drive.counter = 0;
+    // Ждём завершения движения
+    while (!(flag[0] && flag[1])) {
+        // Проверка завершения по оси X
+        if (!flag[0]) {
+            if (cur_side[0] == Forward && mh->axis[0].current_pos_coord >= (x - EPS_PRECISION)) {
+                ModuleCountCurvEN(&mh->axis[0].c_curve, false);
+                flag[0] = true;
+            } else if (cur_side[0] == BackForward && mh->axis[0].current_pos_coord <= (x + EPS_PRECISION)) {
+                ModuleCountCurvEN(&mh->axis[0].c_curve, false);
+                flag[0] = true;
+            }
+        }
 
-					ContMoves(&mh->axis[i], !mh->axis[i].current_side, 20);
-					while (!mh->axis[i].sw_key.sw_k_state) {}
-					GlbtimDelay(500);
-					mh->axis[i].sw_key.sw_k_enabled			= false;
-					mh->axis[i].drive.counter 				= 0;
-					StepMoves(&mh->axis[i], Forward, HOME_OFFSET, 20);
-					GlbtimDelay(500);
-					/* Сброс события прерывания */
-					EXTI->PR 								= mh->axis[i].sw_key.m_sw_k_pin;
-					mh->axis[i].sw_key.sw_k_enabled			= true;
-					GlbtimDelay(500);
+        // Проверка завершения по оси Y
+        if (!flag[1]) {
+            if (cur_side[1] == Forward && mh->axis[1].current_pos_coord >= (y - EPS_PRECISION)) {
+                ModuleCountCurvEN(&mh->axis[1].c_curve, false);
+                flag[1] = true;
+            } else if (cur_side[1] == BackForward && mh->axis[1].current_pos_coord <= (y + EPS_PRECISION)) {
+                ModuleCountCurvEN(&mh->axis[1].c_curve, false);
+                flag[1] = true;
+            }
+        }
 
-					break;
-				}
+        // Проверка концевиков и ограничений
+        for (uint8_t i = 0; i < 2; i++) {
+            if (mh->axis[i].sw_key.sw_k_state) {
+                // Остановить обе оси
+                ModuleCountCurvEN(&mh->axis[0].c_curve, false);
+                ModuleCountCurvEN(&mh->axis[1].c_curve, false);
+                ModuleDriverEnable(&mh->axis[0].drive, false);
+                ModuleDriverEnable(&mh->axis[1].drive, false);
 
-				/* Проверка на позицию внутри рабочей */
-				if (mh->axis[i].current_pos_coord < mh->axis[i].limit_start_coord) {
-					ModuleCountCurvEN(&mh->axis[i].c_curve, false);
-					break;
-				}
-				else if (mh->axis[i].current_pos_coord > mh->axis[i].limit_end_coord) {
-					ModuleCountCurvEN(&mh->axis[i].c_curve, false);
-					break;
-				}
-			}
-		}
-	}
-	else {}
+                // Обработка концевика: откат и сброс
+                ContMoves(&mh->axis[i], !mh->axis[i].current_side, 20);
+                while (!mh->axis[i].sw_key.sw_k_state) {}
+                GlbtimDelay(500);
 
-	ModuleDriverEnable(&mh->axis[0].drive, false);
-	ModuleDriverEnable(&mh->axis[1].drive, false);
+                mh->axis[i].sw_key.sw_k_enabled = false;
+                mh->axis[i].drive.counter = 0;
+                StepMoves(&mh->axis[i], Forward, HOME_OFFSET, 20);
+                GlbtimDelay(500);
+
+                EXTI->PR = mh->axis[i].sw_key.m_sw_k_pin; // Сброс прерывания
+                mh->axis[i].sw_key.sw_k_enabled = true;
+                GlbtimDelay(500);
+
+                return; // Выход из функции — концевик сработал!
+            }
+
+            // Проверка на выход за пределы рабочей зоны
+            if (mh->axis[i].current_pos_coord < mh->axis[i].limit_start_coord ||
+                mh->axis[i].current_pos_coord > mh->axis[i].limit_end_coord) {
+                ModuleCountCurvEN(&mh->axis[0].c_curve, false);
+                ModuleCountCurvEN(&mh->axis[1].c_curve, false);
+                ModuleDriverEnable(&mh->axis[0].drive, false);
+                ModuleDriverEnable(&mh->axis[1].drive, false);
+                return; // Выход — выход за границы
+            }
+        }
+        GlbtimDelay(1);
+    }
+
+    // Остановить двигатели после завершения
+    ModuleDriverEnable(&mh->axis[0].drive, false);
+    ModuleDriverEnable(&mh->axis[1].drive, false);
 }
 void CircleMove(float x1, float y1, float r, _Bool dir) {
-	/* Текущая положение */
-	float x0 = machine.axis[0].current_pos_coord;
-	float y0 = machine.axis[1].current_pos_coord;
-	/* Радиус должен быть > 0 */
-	if (r <= 0.0) return;
-	/* Расстояние между точками */
-	float dx = x1 - x0;
-	float dy = y1 - y0;
-	/* Находим хорду */
-	float D = sqrt((dx *dx) + (dy * dy));
-	/* Хорда не должна быть больше 2 радиусов */
-	if (D >= (2 * r + EPS_PRECISION)) return;
-	/* Середина хорды */
-	float mx = (x0 + x1) / 2.0;
-	float my = (y0 + y1) / 2.0;
-	/* Перпендикуляры к хорде */
-	float perp_x 	= -dy;
-	float perp_y 	= dx;
-	float D2 		= sqrt((perp_x * perp_x) + (perp_y * perp_y));
-	/* Деление на ноль */
-	if (D2 < EPS_PRECISION) return;
+    /* Текущая положение */
+    float x0 = machine.axis[0].current_pos_coord;
+    float y0 = machine.axis[1].current_pos_coord;
+    /* Радиус должен быть > 0 */
+    if (r <= 0.0) {
+    	PointMoves(&machine, x1, y1, machine.FeedRate);
+    	return;
+    }
+    /* Расстояние между точками */
+    float dx = x1 - x0;
+    float dy = y1 - y0;
+    /* Находим хорду */
+    float D = sqrt((dx *dx) + (dy * dy));
 
-	perp_x /= D2;
-	perp_y /= D2;
+    if (D < EPS_PRECISION) {
+        PointMoves(&machine, x1, y1, machine.FeedRate);
+        return;
+    }
+    /* Хорда не должна быть больше диаметра */
+    if (D > (2 * r)) {
+    	if ((D - EPS_PRECISION) < 2 * r) {
+    		r = r + EPS_PRECISION;
+    	}
+    	else return;
+    }
 
-	/* Расстояние от середины хорды до центра окружности */
-	float h = sqrt((r * r) - ((D / 2.0) * (D / 2.0)));
-
-	/* Два возможных центра */
+    /* Середина хорды */
+    float mx = (x0 + x1) / 2.0;
+    float my = (y0 + y1) / 2.0;
+    /* Перпендикуляры к хорде */
+    float perp_x = -dy;
+    float perp_y = dx;
+    float D2 = sqrt((perp_x * perp_x) + (perp_y * perp_y));
+    if (D2 < EPS_PRECISION) return;
+    perp_x /= D2;
+    perp_y /= D2;
+    /* Расстояние от середины хорды до центра окружности */
+    float h = sqrt((r * r) - ((D / 2.0) * (D / 2.0)));
+    /* Два возможных центра */
     float cx1 = mx + h * perp_x;
     float cy1 = my + h * perp_y;
-
     float cx2 = mx - h * perp_x;
     float cy2 = my - h * perp_y;
 
     float NormalizeAngle (float a) {
-    	while (a > M_PI) a -= 2 * M_PI;
-    	while (a <= -M_PI) a += 2 * M_PI;
-    	return a;
-    	};
+        while (a > M_PI) a -= 2 * M_PI;
+        while (a <= -M_PI) a += 2 * M_PI;
+        return a;
+    };
 
     // Вычисляем углы от центров до начальной и конечной точек
-    float theta0_1 	= atan2f(y0 - cy1, x0 - cx1);
-    float theta1_1 	= atan2f(y1 - cy1, x1 - cx1);
-    float delta1 	= NormalizeAngle(theta1_1 - theta0_1);
-
-    float theta0_2 	= atan2f(y0 - cy2, x0 - cx2);
-    float theta1_2 	= atan2f(y1 - cy2, x1 - cx2);
-    float delta2 		= NormalizeAngle(theta1_2 - theta0_2);
-
-    // Выбор центра по направлению
-    float cx = 0, cy = 0;
-//    if (dir == 0) {
-//    	// G03: против часовой — положительный угол
-//    	cx = (delta1 > 0) ? cx1 : cx2;
-//    	cy = (delta1 > 0) ? cy1 : cy2;
-//    } else {
-//    	// G02: по часовой — отрицательный угол
-//    	cx = (delta1 < 0) ? cx1 : cx2;
-//    	cy = (delta1 < 0) ? cy1 : cy2;
-//    }
+    float theta0_1 = atan2f(y0 - cy1, x0 - cx1);
+    float theta1_1 = atan2f(y1 - cy1, x1 - cx1);
+    float delta1 = NormalizeAngle(theta1_1 - theta0_1);
+    float theta0_2 = atan2f(y0 - cy2, x0 - cx2);
+    float theta1_2 = atan2f(y1 - cy2, x1 - cx2);
+    float delta2 = NormalizeAngle(theta1_2 - theta0_2);
 
     float delta_theta = 0;
     float theta0 = 0;
     float theta1 = 0;
+    float cx = 0, cy = 0;
 
-
-    if (dir == 0) { // G03: против часовой — нужен положительный угол
-        if (delta1 >= 0) {
-            cx = cx1; cy = cy1; delta_theta = delta1; theta0 = theta0_1;
-        } else {
-            cx = cx2; cy = cy2; delta_theta = delta2; theta0 = theta0_2;
+    if (fabsf(D - 2*r) < EPS_PRECISION) {
+        if (dir == 1) { // G03 — против часовой — центр выше хорды
+            cx = cx1; cy = cy1;
+            delta_theta = M_PI;
+            theta0 = atan2f(y0 - cy, x0 - cx);
+            theta1 = atan2f(y1 - cy, x1 - cx);
+        } else { // G02 — по часовой — центр ниже хорды
+            cx = cx2; cy = cy2;
+            delta_theta = -M_PI;
+            theta0 = atan2f(y0 - cy, x0 - cx);
+            theta1 = atan2f(y1 - cy, x1 - cx);
         }
-    } else { // G02: по часовой — нужен отрицательный угол
-        if (delta1 <= 0) {
-            cx = cx1; cy = cy1; delta_theta = delta1; theta0 = theta0_1;
-        } else {
-            cx = cx2; cy = cy2; delta_theta = delta2; theta0 = theta0_2;
+    } else {
+
+        if (dir == 0) // G02 — по часовой стрелке — отрицательный поворот
+        {
+            if (delta1 < 0) {
+                cx = cx1; cy = cy1; delta_theta = delta1; theta0 = theta0_1; theta1 = theta1_1;
+            } else {
+                cx = cx2; cy = cy2; delta_theta = delta2; theta0 = theta0_2; theta1 = theta1_2;
+            }
+        }
+        else if (dir == 1) // G03 — против часовой — положительный поворот
+        {
+            if (delta1 > 0) {
+                cx = cx1; cy = cy1; delta_theta = delta1; theta0 = theta0_1; theta1 = theta1_1;
+            } else {
+                cx = cx2; cy = cy2; delta_theta = delta2; theta0 = theta0_2; theta1 = theta1_2;
+            }
         }
     }
 
-
-    // Углы от выбранного центра до начальной и конечной точек
-//    float theta0 = atan2f(y0 - cy, x0 - cx);
-//    float theta1 = atan2f(y1 - cy, x1 - cx);
-
-    // Угол поворота (может быть >π или <-π, но мы не нормализуем)
-//    float delta_theta = theta1 - theta0;
-
     // Количество шагов интерполяции
-	int num_steps = 150;
-	float dtheta = delta_theta / num_steps;
+    int num_steps = 50;
+    float dtheta = delta_theta / num_steps;
+    float c = cosf(dtheta);
+    float s = sinf(dtheta);
 
-	// Рекуррентные cos и sin шага
-	float c = cosf(dtheta);
-	float s = sinf(dtheta);
+    // Начальный вектор от центра до начальной точки
+    float x_rel = r * cosf(theta0);
+    float y_rel = r * sinf(theta0);
 
-	// Начальный вектор от центра до начальной точки
-	float x_rel = r * cosf(theta0);
-	float y_rel = r * sinf(theta0);
-
-    // Генерация точек по дуге (рекуррентно)
+    // Генерация точек по дуге
     for (uint32_t i = 0; i <= num_steps; i++) {
-
-    	float px = cx + x_rel;
+        float px = cx + x_rel;
         float py = cy + y_rel;
 
-    	PointMoves(&machine, px, py, machine.FeedRate);
+        PointMoves(&machine, px, py, machine.FeedRate);
 
-        // Обновляем текущую позицию (для отладки/следующих команд)
         machine.axis[0].current_pos_coord = px;
         machine.axis[1].current_pos_coord = py;
 
-        // Обновляем вектор поворота (рекуррентно)
         if (i < num_steps) {
             float xn = c * x_rel - s * y_rel;
             float yn = s * x_rel + c * y_rel;
@@ -494,7 +664,7 @@ void CircleMove(float x1, float y1, float r, _Bool dir) {
             y_rel = yn;
         }
     }
-	return;
+    return;
 }
 
 void ContMoves(Axis_t* ax, SideMV_t sd, uint32_t sp)
@@ -652,14 +822,131 @@ void G_CommandString(unsigned char* g_ch) {
 		if ((g_ch[i] == 'G') && (g_ch[i + 1] == '2')) {
 
 			i += 2;
-//			GC_G2(0, 0, 0);
+
+			if (i != num_ch) {
+				float t_x, t_y, t_r 		= 0.0;
+				unsigned char str_num_x[20] = {0, };
+				unsigned char str_num_y[20] = {0, };
+				unsigned char str_num_r[20] = {0, };
+
+				for (uint8_t u = i; u < num_ch; u++) {
+					if (g_ch[u] == ' ') continue;
+					else if (g_ch[u] == ';') {
+						break;
+					}
+					else {
+						/* X */
+						if ((g_ch[u] == 'X') || (g_ch[u] == 'x')) {
+							uint8_t str_num_cnt = 0;
+							u++;
+							while(1) {
+								if (((g_ch[u] >= '0') && (g_ch[u] <= '9')) || (g_ch[u] == '.')) {
+									str_num_x[str_num_cnt] = g_ch[u];
+									str_num_cnt++;
+									u++;
+								}
+								else break;
+							}
+						}
+						/* Y */
+						if ((g_ch[u] == 'Y') || (g_ch[u] == 'y')) {
+							uint8_t str_num_cnt = 0;
+							u++;
+							while(1) {
+								if (((g_ch[u] >= '0') && (g_ch[u] <= '9')) || (g_ch[u] == '.')) {
+									str_num_y[str_num_cnt] = g_ch[u];
+									str_num_cnt++;
+									u++;
+								}
+								else break;
+							}
+						}
+						/* R */
+						if ((g_ch[u] == 'R') || (g_ch[u] == 'r')) {
+							uint8_t str_num_cnt = 0;
+							u++;
+							while(1) {
+								if (((g_ch[u] >= '0') && (g_ch[u] <= '9')) || (g_ch[u] == '.')) {
+									str_num_r[str_num_cnt] = g_ch[u];
+									str_num_cnt++;
+									u++;
+								}
+								else break;
+							}
+						}
+					}
+					i = u;
+				}
+				t_x = (float)atof((const char*)str_num_x);
+				t_y = (float)atof((const char*)str_num_y);
+				t_r = (float)atof((const char*)str_num_r);
+				GC_G2(t_x, t_y, t_r);
+			}
 			continue;
 		}
 		/* G3 */
 		if ((g_ch[i] == 'G') && (g_ch[i + 1] == '3')) {
-
 			i += 2;
-//			GC_G3(0, 0, 0);
+
+			if (i != num_ch) {
+				float t_x, t_y, t_r 		= 0.0;
+				unsigned char str_num_x[20] = {0, };
+				unsigned char str_num_y[20] = {0, };
+				unsigned char str_num_r[20] = {0, };
+
+				for (uint8_t u = i; u < num_ch; u++) {
+					if (g_ch[u] == ' ') continue;
+					else if (g_ch[u] == ';') {
+						break;
+					}
+					else {
+						/* X */
+						if ((g_ch[u] == 'X') || (g_ch[u] == 'x')) {
+							uint8_t str_num_cnt = 0;
+							u++;
+							while(1) {
+								if (((g_ch[u] >= '0') && (g_ch[u] <= '9')) || (g_ch[u] == '.')) {
+									str_num_x[str_num_cnt] = g_ch[u];
+									str_num_cnt++;
+									u++;
+								}
+								else break;
+							}
+						}
+						/* Y */
+						if ((g_ch[u] == 'Y') || (g_ch[u] == 'y')) {
+							uint8_t str_num_cnt = 0;
+							u++;
+							while(1) {
+								if (((g_ch[u] >= '0') && (g_ch[u] <= '9')) || (g_ch[u] == '.')) {
+									str_num_y[str_num_cnt] = g_ch[u];
+									str_num_cnt++;
+									u++;
+								}
+								else break;
+							}
+						}
+						/* R */
+						if ((g_ch[u] == 'R') || (g_ch[u] == 'r')) {
+							uint8_t str_num_cnt = 0;
+							u++;
+							while(1) {
+								if (((g_ch[u] >= '0') && (g_ch[u] <= '9')) || (g_ch[u] == '.')) {
+									str_num_r[str_num_cnt] = g_ch[u];
+									str_num_cnt++;
+									u++;
+								}
+								else break;
+							}
+						}
+					}
+					i = u;
+				}
+				t_x = (float)atof((const char*)str_num_x);
+				t_y = (float)atof((const char*)str_num_y);
+				t_r = (float)atof((const char*)str_num_r);
+				GC_G3(t_x, t_y, t_r);
+			}
 			continue;
 		}
 		/* F */

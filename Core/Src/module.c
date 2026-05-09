@@ -91,11 +91,59 @@ _Bool ModuleInit()
 	Machine_Start_SupCounter();
 
 	LCD1602_Init();
-//	FRESULT sd_state = SD_Mount("", 0);
-//	if (sd_state == FR_OK) StartGCode("code.txt");
-
-	GoHome(_ALL_AXISES);
+	FRESULT sd_state = SD_Mount("", 0);
 	HAL_Delay(1000);
+	machine.FeedRate = 50;
+//	GoHome(_ALL_AXISES);
+
+//	machine.FeedRate = 50;
+//	PointMoves(&machine, 50, 50, machine.FeedRate);
+//	HAL_Delay(1000);
+//	PointMoves(&machine, 60, 40, machine.FeedRate);
+//	PointMoves(&machine, 60, 60, machine.FeedRate);
+//	PointMoves(&machine, 50, 50, machine.FeedRate);
+//	machine.FeedRate = 100;
+//	HAL_Delay(1000);
+//	PointMoves(&machine, 60, 40, machine.FeedRate);
+//	PointMoves(&machine, 60, 60, machine.FeedRate);
+//	PointMoves(&machine, 50, 50, machine.FeedRate);
+
+
+
+
+
+//	PointMoves(&machine, 50, 50, machine.FeedRate);
+//	MachineLaserState(true);
+//	CircleMove2(60, 50, 10, 0);
+//	MachineLaserState(false);
+//	HAL_Delay(1000);
+//	MachineLaserState(true);
+//	CircleMove2(50, 50, 10, 1);
+//	MachineLaserState(false);
+//	HAL_Delay(1000);
+	if (sd_state == FR_OK) StartGCode("code.txt");
+
+
+	HAL_Delay(1000);
+//	MachineLaserState(true);
+//	CircleMove2(60, 50, 5.1, 0);
+//
+//	CircleMove2(70, 50, 5.1, 1);
+//
+//	CircleMove2(80, 50, 5.1, 0);
+//
+//	CircleMove2(90, 50, 5.1, 1);
+//
+//
+//	CircleMove2(80, 50, 5.1, 1);
+//
+//	CircleMove2(70, 50, 5.1, 0);
+//
+//	CircleMove2(60, 50, 5.16, 1);
+//
+//	CircleMove2(50, 50, 5.1, 0);
+//	MachineLaserState(false);
+
 
 	return 0;
 }

@@ -26,10 +26,12 @@ void GC_G1(float GX, float GY, float GZ) {
 	return;
 }
 void GC_G2(float x1, float y1, float r) {
+//	CircleMove(x1, y1, r, 0);
 	CircleMove(x1, y1, r, 0);
 	return;
 }
 void GC_G3(float x1, float y1, float r) {
+//	CircleMove(x1, y1, r, 1);
 	CircleMove(x1, y1, r, 1);
 	return;
 }
