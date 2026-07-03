@@ -55,15 +55,7 @@ void SVC_Handler(void);
 void DebugMon_Handler(void);
 void PendSV_Handler(void);
 void SysTick_Handler(void);
-void ADC1_2_IRQHandler(void);
-void EXTI9_5_IRQHandler(void);
-void USART1_IRQHandler(void);
-void TIM8_BRK_IRQHandler(void);
-void TIM8_UP_IRQHandler(void);
-void TIM8_TRG_COM_IRQHandler(void);
-void TIM8_CC_IRQHandler(void);
-void TIM6_IRQHandler(void);
-void TIM7_IRQHandler(void);
+void TIM8_TRG_COM_TIM14_IRQHandler(void);
 /* USER CODE BEGIN EFP */
 
 /* USER CODE END EFP */

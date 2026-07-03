@@ -1,9 +1,0 @@
-../Core/lib/funcG.c:26:6:StartGCode	4
-../Core/lib/funcG.c:59:6:GoHome	8
-../Core/lib/funcG.c:197:6:StepMoves	7
-../Core/lib/funcG.c:406:6:PointMoves	21
-../Core/lib/funcG.c:589:11:NormalizeAngle	3
-../Core/lib/funcG.c:544:6:CircleMove	14
-../Core/lib/funcG.c:670:6:ContMoves	1
-../Core/lib/funcG.c:681:6:SetFeedRate	1
-../Core/lib/funcG.c:690:6:G_CommandString	98

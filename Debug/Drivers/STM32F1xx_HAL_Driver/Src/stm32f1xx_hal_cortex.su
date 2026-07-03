@@ -18,6 +18,9 @@
 ../Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_cortex.c:202:6:HAL_NVIC_DisableIRQ	16	static
 ../Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_cortex.c:215:6:HAL_NVIC_SystemReset	8	static
 ../Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_cortex.c:228:10:HAL_SYSTICK_Config	16	static
+../Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_cortex.c:257:6:HAL_MPU_Disable	4	static,ignoring_inline_asm
+../Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_cortex.c:280:6:HAL_MPU_Enable	16	static,ignoring_inline_asm
+../Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_cortex.c:299:6:HAL_MPU_ConfigRegion	16	static
 ../Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_cortex.c:343:10:HAL_NVIC_GetPriorityGrouping	8	static
 ../Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_cortex.c:370:6:HAL_NVIC_GetPriority	24	static
 ../Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_cortex.c:385:6:HAL_NVIC_SetPendingIRQ	16	static

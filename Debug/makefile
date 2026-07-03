@@ -9,10 +9,6 @@ RM := rm -rf
 
 # All of the sources participating in the build are defined here
 -include sources.mk
--include Middlewares/Third_Party/FatFs/src/option/subdir.mk
--include Middlewares/Third_Party/FatFs/src/subdir.mk
--include FATFS/Target/subdir.mk
--include FATFS/App/subdir.mk
 -include Drivers/STM32F1xx_HAL_Driver/Src/subdir.mk
 -include Core/lib/subdir.mk
 -include Core/Startup/subdir.mk
@@ -39,34 +35,34 @@ $(wildcard ../makefile.init) \
 $(wildcard ../makefile.targets) \
 
 
-BUILD_ARTIFACT_NAME := LaserSTMHardware
+BUILD_ARTIFACT_NAME := LaserSTMHardware_v.1.0
 BUILD_ARTIFACT_EXTENSION := elf
 BUILD_ARTIFACT_PREFIX :=
 BUILD_ARTIFACT := $(BUILD_ARTIFACT_PREFIX)$(BUILD_ARTIFACT_NAME)$(if $(BUILD_ARTIFACT_EXTENSION),.$(BUILD_ARTIFACT_EXTENSION),)
 
 # Add inputs and outputs from these tool invocations to the build variables 
 EXECUTABLES += \
-LaserSTMHardware.elf \
+LaserSTMHardware_v.1.0.elf \
 
 MAP_FILES += \
-LaserSTMHardware.map \
+LaserSTMHardware_v.1.0.map \
 
 SIZE_OUTPUT += \
 default.size.stdout \
 
 OBJDUMP_LIST += \
-LaserSTMHardware.list \
+LaserSTMHardware_v.1.0.list \
 
 
 # All Target
 all: main-build
 
 # Main-build Target
-main-build: LaserSTMHardware.elf secondary-outputs
+main-build: LaserSTMHardware_v.1.0.elf secondary-outputs
 
 # Tool invocations
-LaserSTMHardware.elf LaserSTMHardware.map: $(OBJS) $(USER_OBJS) C:\Users\makar\OneDrive\Документы\CubeMX_Project\LaserSTMHardware\STM32F103VETX_FLASH.ld makefile objects.list $(OPTIONAL_TOOL_DEPS)
-	arm-none-eabi-gcc -o "LaserSTMHardware.elf" @"objects.list" $(USER_OBJS) $(LIBS) -mcpu=cortex-m3 -T"C:\Users\makar\OneDrive\Документы\CubeMX_Project\LaserSTMHardware\STM32F103VETX_FLASH.ld" --specs=nosys.specs -Wl,-Map="LaserSTMHardware.map" -Wl,--gc-sections -static --specs=nano.specs -mfloat-abi=soft -mthumb -u _printf_float -Wl,--start-group -lc -lm -Wl,--end-group
+LaserSTMHardware_v.1.0.elf LaserSTMHardware_v.1.0.map: $(OBJS) $(USER_OBJS) C:\Users\makar\OneDrive\Документы\CubeMX_Project\LaserSTMHardware_v.1.0\STM32F103RGTX_FLASH.ld makefile objects.list $(OPTIONAL_TOOL_DEPS)
+	arm-none-eabi-gcc -o "LaserSTMHardware_v.1.0.elf" @"objects.list" $(USER_OBJS) $(LIBS) -mcpu=cortex-m3 -T"C:\Users\makar\OneDrive\Документы\CubeMX_Project\LaserSTMHardware_v.1.0\STM32F103RGTX_FLASH.ld" --specs=nosys.specs -Wl,-Map="LaserSTMHardware_v.1.0.map" -Wl,--gc-sections -static --specs=nano.specs -mfloat-abi=soft -mthumb -u _printf_float -Wl,--start-group -lc -lm -Wl,--end-group
 	@echo 'Finished building target: $@'
 	@echo ' '
 
@@ -75,14 +71,14 @@ default.size.stdout: $(EXECUTABLES) makefile objects.list $(OPTIONAL_TOOL_DEPS)
 	@echo 'Finished building: $@'
 	@echo ' '
 
-LaserSTMHardware.list: $(EXECUTABLES) makefile objects.list $(OPTIONAL_TOOL_DEPS)
-	arm-none-eabi-objdump -h -S $(EXECUTABLES) > "LaserSTMHardware.list"
+LaserSTMHardware_v.1.0.list: $(EXECUTABLES) makefile objects.list $(OPTIONAL_TOOL_DEPS)
+	arm-none-eabi-objdump -h -S $(EXECUTABLES) > "LaserSTMHardware_v.1.0.list"
 	@echo 'Finished building: $@'
 	@echo ' '
 
 # Other Targets
 clean:
-	-$(RM) LaserSTMHardware.elf LaserSTMHardware.list LaserSTMHardware.map default.size.stdout
+	-$(RM) LaserSTMHardware_v.1.0.elf LaserSTMHardware_v.1.0.list LaserSTMHardware_v.1.0.map default.size.stdout
 	-@echo ' '
 
 secondary-outputs: $(SIZE_OUTPUT) $(OBJDUMP_LIST)

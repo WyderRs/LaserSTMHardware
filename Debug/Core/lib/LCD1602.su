@@ -1,8 +1,0 @@
-../Core/lib/LCD1602.c:16:13:lcd_write_nibble	40	static
-../Core/lib/LCD1602.c:32:13:lcd_write_byte	16	static
-../Core/lib/LCD1602.c:47:7:LCD1602_Init	8	static
-../Core/lib/LCD1602.c:77:6:LCD1602_SetCursor	16	static
-../Core/lib/LCD1602.c:83:6:LCD1602_WriteChar	16	static
-../Core/lib/LCD1602.c:88:6:LCD1602_WriteString	16	static
-../Core/lib/LCD1602.c:93:6:LCD1602_Backlight	40	static
-../Core/lib/LCD1602.c:99:6:LCD1602_Clear	8	static

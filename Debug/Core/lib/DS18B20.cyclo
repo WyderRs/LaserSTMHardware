@@ -1,0 +1,14 @@
+../Core/lib/DS18B20.c:23:13:delay_us	3
+../Core/lib/DS18B20.c:32:6:DS18B20_PortInit	1
+../Core/lib/DS18B20.c:40:10:DS18B20_Reset	1
+../Core/lib/DS18B20.c:50:9:DS18B20_ReadBit	1
+../Core/lib/DS18B20.c:60:9:DS18B20_ReadByte	2
+../Core/lib/DS18B20.c:66:6:DS18B20_WriteBit	3
+../Core/lib/DS18B20.c:72:6:DS18B20_WriteByte	2
+../Core/lib/DS18B20.c:79:9:DS18B20_init	3
+../Core/lib/DS18B20.c:96:6:DS18B20_MeasureTemperCmd	2
+../Core/lib/DS18B20.c:106:6:DS18B20_ReadStratcpad	3
+../Core/lib/DS18B20.c:121:9:DS18B20_GetSign	2
+../Core/lib/DS18B20.c:126:7:DS18B20_Convert	1
+../Core/lib/DS18B20.c:133:9:DS18B20_ReadRom	13
+../Core/lib/DS18B20.c:208:6:DS18B20_ReadTempALL	4

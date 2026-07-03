@@ -11,4 +11,5 @@
 ../Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_flash.c:772:10:HAL_FLASH_GetError	4	static
 ../Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_flash.c:795:13:FLASH_Program_HalfWord	16	static
 ../Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_flash.c:824:19:FLASH_WaitForLastOperation	24	static
+../Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_flash.c:869:19:FLASH_WaitForLastOperationBank2	24	static
 ../Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_flash.c:912:13:FLASH_SetErrorCode	16	static
