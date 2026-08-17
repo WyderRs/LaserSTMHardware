@@ -1,8 +1,9 @@
-../Core/lib/LCD2004.c:15:13:LCD_WriteNibble	40	static
-../Core/lib/LCD2004.c:31:13:LCD_WriteByte	16	static
-../Core/lib/LCD2004.c:43:7:LCD_Init	24	static
-../Core/lib/LCD2004.c:82:6:LCD_SetCursor	32	static
-../Core/lib/LCD2004.c:102:6:LCD_WriteChar	16	static
-../Core/lib/LCD2004.c:107:6:LCD_WriteString	24	static
-../Core/lib/LCD2004.c:119:6:LCD_Backlight	40	static
-../Core/lib/LCD2004.c:125:6:LCD_Clear	8	static
+../Core/lib/LCD2004.c:16:13:DelayMs	24	static
+../Core/lib/LCD2004.c:21:13:LCD_WriteNibble	40	static
+../Core/lib/LCD2004.c:37:13:LCD_WriteByte	16	static
+../Core/lib/LCD2004.c:51:7:LCD_Init	24	static
+../Core/lib/LCD2004.c:90:6:LCD_SetCursor	32	static
+../Core/lib/LCD2004.c:110:6:LCD_WriteChar	16	static
+../Core/lib/LCD2004.c:115:6:LCD_WriteString	24	static
+../Core/lib/LCD2004.c:127:6:LCD_Backlight	40	static
+../Core/lib/LCD2004.c:133:6:LCD_Clear	8	static

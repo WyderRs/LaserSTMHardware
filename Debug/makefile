@@ -1,6 +1,6 @@
 ################################################################################
 # Automatically-generated file. Do not edit!
-# Toolchain: GNU Tools for STM32 (12.3.rel1)
+# Toolchain: GNU Tools for STM32 (14.3.rel1)
 ################################################################################
 
 -include ../makefile.init
@@ -9,6 +9,14 @@ RM := rm -rf
 
 # All of the sources participating in the build are defined here
 -include sources.mk
+-include Middlewares/Third_Party/FreeRTOS/Source/portable/MemMang/subdir.mk
+-include Middlewares/Third_Party/FreeRTOS/Source/portable/GCC/ARM_CM3/subdir.mk
+-include Middlewares/Third_Party/FreeRTOS/Source/CMSIS_RTOS/subdir.mk
+-include Middlewares/Third_Party/FreeRTOS/Source/subdir.mk
+-include Middlewares/Third_Party/FatFs/src/option/subdir.mk
+-include Middlewares/Third_Party/FatFs/src/subdir.mk
+-include FATFS/Target/subdir.mk
+-include FATFS/App/subdir.mk
 -include Drivers/STM32F1xx_HAL_Driver/Src/subdir.mk
 -include Core/lib/subdir.mk
 -include Core/Startup/subdir.mk
@@ -35,34 +43,34 @@ $(wildcard ../makefile.init) \
 $(wildcard ../makefile.targets) \
 
 
-BUILD_ARTIFACT_NAME := LaserSTMHardware_v.1.0
+BUILD_ARTIFACT_NAME := ToolTable
 BUILD_ARTIFACT_EXTENSION := elf
 BUILD_ARTIFACT_PREFIX :=
 BUILD_ARTIFACT := $(BUILD_ARTIFACT_PREFIX)$(BUILD_ARTIFACT_NAME)$(if $(BUILD_ARTIFACT_EXTENSION),.$(BUILD_ARTIFACT_EXTENSION),)
 
 # Add inputs and outputs from these tool invocations to the build variables 
 EXECUTABLES += \
-LaserSTMHardware_v.1.0.elf \
+ToolTable.elf \
 
 MAP_FILES += \
-LaserSTMHardware_v.1.0.map \
+ToolTable.map \
 
 SIZE_OUTPUT += \
 default.size.stdout \
 
 OBJDUMP_LIST += \
-LaserSTMHardware_v.1.0.list \
+ToolTable.list \
 
 
 # All Target
 all: main-build
 
 # Main-build Target
-main-build: LaserSTMHardware_v.1.0.elf secondary-outputs
+main-build: ToolTable.elf secondary-outputs
 
 # Tool invocations
-LaserSTMHardware_v.1.0.elf LaserSTMHardware_v.1.0.map: $(OBJS) $(USER_OBJS) C:\Users\makar\OneDrive\Документы\CubeMX_Project\LaserSTMHardware_v.1.0\STM32F103RGTX_FLASH.ld makefile objects.list $(OPTIONAL_TOOL_DEPS)
-	arm-none-eabi-gcc -o "LaserSTMHardware_v.1.0.elf" @"objects.list" $(USER_OBJS) $(LIBS) -mcpu=cortex-m3 -T"C:\Users\makar\OneDrive\Документы\CubeMX_Project\LaserSTMHardware_v.1.0\STM32F103RGTX_FLASH.ld" --specs=nosys.specs -Wl,-Map="LaserSTMHardware_v.1.0.map" -Wl,--gc-sections -static --specs=nano.specs -mfloat-abi=soft -mthumb -u _printf_float -Wl,--start-group -lc -lm -Wl,--end-group
+ToolTable.elf ToolTable.map: $(OBJS) $(USER_OBJS) D:\STM32_Projects\ToolTable\STM32F103RGTX_FLASH.ld makefile objects.list $(OPTIONAL_TOOL_DEPS)
+	arm-none-eabi-gcc -o "ToolTable.elf" @"objects.list" $(USER_OBJS) $(LIBS) -mcpu=cortex-m3 -T"D:\STM32_Projects\ToolTable\STM32F103RGTX_FLASH.ld" --specs=nosys.specs -Wl,-Map="ToolTable.map" -Wl,--gc-sections -static --specs=nano.specs -mfloat-abi=soft -mthumb -Wl,--start-group -lc -lm -Wl,--end-group
 	@echo 'Finished building target: $@'
 	@echo ' '
 
@@ -71,14 +79,14 @@ default.size.stdout: $(EXECUTABLES) makefile objects.list $(OPTIONAL_TOOL_DEPS)
 	@echo 'Finished building: $@'
 	@echo ' '
 
-LaserSTMHardware_v.1.0.list: $(EXECUTABLES) makefile objects.list $(OPTIONAL_TOOL_DEPS)
-	arm-none-eabi-objdump -h -S $(EXECUTABLES) > "LaserSTMHardware_v.1.0.list"
+ToolTable.list: $(EXECUTABLES) makefile objects.list $(OPTIONAL_TOOL_DEPS)
+	arm-none-eabi-objdump -h -S $(EXECUTABLES) > "ToolTable.list"
 	@echo 'Finished building: $@'
 	@echo ' '
 
 # Other Targets
 clean:
-	-$(RM) LaserSTMHardware_v.1.0.elf LaserSTMHardware_v.1.0.list LaserSTMHardware_v.1.0.map default.size.stdout
+	-$(RM) ToolTable.elf ToolTable.list ToolTable.map default.size.stdout
 	-@echo ' '
 
 secondary-outputs: $(SIZE_OUTPUT) $(OBJDUMP_LIST)

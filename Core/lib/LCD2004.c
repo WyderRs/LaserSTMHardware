@@ -8,9 +8,15 @@
 #include "LCD2004.h"
 
 
-
 extern I2C_HandleTypeDef 	hi2c1;
 LCD2004_t LCD2004;
+
+
+
+static void DelayMs(uint32_t ms) {
+	for(uint32_t i = 0; i < ms * 1000; i++) {}
+}
+
 
 static void LCD_WriteNibble(uint8_t nibble, uint8_t rs)
 {
@@ -34,9 +40,11 @@ static void LCD_WriteByte(uint8_t byte, uint8_t rs)
 	LCD_WriteNibble(byte & 0x0F, rs);
     if (byte == 0x01 || byte == 0x02 ||
         (byte >= 0x28 && byte <= 0x2F)) {
-        HAL_Delay(10);  /* команды долгие */
+        DelayMs(10);
+//    	for(uint32_t i = 0; i < 10000; i++) {}
     } else {
-        HAL_Delay(10);
+        DelayMs(10);
+//    	for(uint32_t i = 0; i < 10000; i++) {}
     }
 }
 
@@ -48,17 +56,17 @@ _Bool LCD_Init(uint8_t addr, uint16_t col, uint16_t row) {
 	LCD2004.Backlight	= true;
 
     /* Ждём, пока LCD проснётся (> 15 мс после питания) */
-    HAL_Delay(50);
+    DelayMs(50);
 
     /* Функция set 8-bit (3 раза) – инициализируем 4-битный режим */
     LCD_WriteNibble(0x03, 0);
-    HAL_Delay(5);
+    DelayMs(5);
     LCD_WriteNibble(0x03, 0);
-    HAL_Delay(1);
+    DelayMs(1);
     LCD_WriteNibble(0x03, 0);
-    HAL_Delay(1);
+    DelayMs(1);
     LCD_WriteNibble(0x02, 0); /* переход в 4-битный режим */
-    HAL_Delay(1);
+    DelayMs(1);
 
     /* Настройка размера дисплея (Function Set)
        DL = 0 (4-бит режим)
@@ -73,7 +81,7 @@ _Bool LCD_Init(uint8_t addr, uint16_t col, uint16_t row) {
 
     LCD_WriteByte(0x08, 0); /* дисплей выкл */
     LCD_WriteByte(0x01, 0); /* очистка */
-    HAL_Delay(2);
+    DelayMs(2);
     LCD_WriteByte(0x06, 0); /* режим инкремента */
     LCD_WriteByte(0x0C, 0); /* дисплей вкл, курсор выкл */
 

@@ -102,14 +102,16 @@
 #if defined(VECT_TAB_SRAM)
 #define VECT_TAB_BASE_ADDRESS   SRAM_BASE       /*!< Vector Table base address field.
                                                      This value must be a multiple of 0x200. */
-#define VECT_TAB_OFFSET         0x00000000U     /*!< Vector Table base offset field.
-                                                     This value must be a multiple of 0x200. */
 #else
 #define VECT_TAB_BASE_ADDRESS   FLASH_BASE      /*!< Vector Table base address field.
                                                      This value must be a multiple of 0x200. */
-#define VECT_TAB_OFFSET         0x00000000U     /*!< Vector Table base offset field.
-                                                     This value must be a multiple of 0x200. */
 #endif /* VECT_TAB_SRAM */
+
+#if !defined(VECT_TAB_OFFSET)
+#define VECT_TAB_OFFSET         0x00000000U     /*!< Vector Table offset field.
+                                                     This value must be a multiple of 0x200. */
+#endif /* VECT_TAB_OFFSET */
+
 #endif /* USER_VECT_TAB_ADDRESS */
 
 /******************************************************************************/
@@ -138,7 +140,7 @@
                is no need to call the 2 first functions listed above, since SystemCoreClock
                variable is updated automatically.
   */
-uint32_t SystemCoreClock = 16000000;
+uint32_t SystemCoreClock = 8000000;
 const uint8_t AHBPrescTable[16U] = {0, 0, 0, 0, 0, 0, 0, 0, 1, 2, 3, 4, 6, 7, 8, 9};
 const uint8_t APBPrescTable[8U] =  {0, 0, 0, 0, 1, 2, 3, 4};
 

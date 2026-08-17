@@ -18,13 +18,16 @@
 /* USER CODE END Header */
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
+#include "cmsis_os.h"
+#include "fatfs.h"
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
-#include "../lib/LCD2004.h"
-#include "../lib/DS18B20.h"
-
 #include "stdio.h"
+
+#include "../lib/LCD2004.h"
+#include "../lib/DriverLib.h"
+#include "../lib/SD.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -51,8 +54,40 @@ TIM_HandleTypeDef htim14;
 
 UART_HandleTypeDef huart1;
 
+osThreadId default_taskHandle;
+osThreadId table_taskHandle;
+osThreadId display_taskHandle;
+osThreadId control_taskHandle;
 /* USER CODE BEGIN PV */
+/********************************************************/
 
+
+/* display */
+char display_buf[20];
+/* table */
+
+/********************************************************/
+uint16_t time = 0;
+uint32_t idle_tick;
+extern FATFS fs;
+extern FIL fil;
+
+
+
+Point_t point;
+/********************************************************/
+/* Functions */
+
+
+
+
+
+
+
+
+
+
+/********************************************************/
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -60,19 +95,18 @@ void SystemClock_Config(void);
 static void MX_GPIO_Init(void);
 static void MX_I2C1_Init(void);
 static void MX_SPI1_Init(void);
-static void MX_USART1_UART_Init(void);
 static void MX_TIM14_Init(void);
-/* USER CODE BEGIN PFP */
+static void MX_USART1_UART_Init(void);
+void TASK_default(void const * argument);
+void TASK_table(void const * argument);
+void TASK_display(void const * argument);
+void TASK_control(void const * argument);
 
+/* USER CODE BEGIN PFP */
 /* USER CODE END PFP */
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
-
-
-uint32_t GLB_Timer;
-
-float temp[3];
 
 /* USER CODE END 0 */
 
@@ -107,70 +141,85 @@ int main(void)
   MX_GPIO_Init();
   MX_I2C1_Init();
   MX_SPI1_Init();
-  MX_USART1_UART_Init();
   MX_TIM14_Init();
+  MX_USART1_UART_Init();
+  MX_FATFS_Init();
   /* USER CODE BEGIN 2 */
 
-  HAL_TIM_Base_Start_IT(&htim14);
+
+//  HAL_TIM_Base_Start_IT(&htim14);
 
 
+
+  tbInit();
   LCD_Init(0x4E, 20, 4);
+  LCD_Clear();
 
-//  OneWire_PortInit(GPIOC, GPIO_PIN_3);
+  LCD_SetCursor(0, 0);
+  LCD_WriteString("Bootting...");
 
-  DS18B20_PortInit(GPIOC, GPIO_PIN_3);
-//  _Bool status = DS18B20_init(SKIP_ROM);
+  HAL_Delay(1000);
+  tbDriver(ON);
 
-  DS18B20_ReadRom(3);
+  HAL_Delay(1000);
+  tbDriver(OFF);
+//  tbMove(10, 10, 0);
 
 
-  uint16_t time = 0;
-  char buf1[20] = {0, };
-  char buf2[20] = {0, };
-  char buf3[20] = {0, };
-  char buf4[20] = {0, };
   /* USER CODE END 2 */
+
+  /* USER CODE BEGIN RTOS_MUTEX */
+  /* add mutexes, ... */
+  /* USER CODE END RTOS_MUTEX */
+
+  /* USER CODE BEGIN RTOS_SEMAPHORES */
+  /* add semaphores, ... */
+  /* USER CODE END RTOS_SEMAPHORES */
+
+  /* USER CODE BEGIN RTOS_TIMERS */
+  /* start timers, add new ones, ... */
+  /* USER CODE END RTOS_TIMERS */
+
+  /* USER CODE BEGIN RTOS_QUEUES */
+  /* add queues, ... */
+  /* USER CODE END RTOS_QUEUES */
+
+  /* Create the thread(s) */
+  /* definition and creation of default_task */
+  osThreadDef(default_task, TASK_default, osPriorityIdle, 0, 128);
+  default_taskHandle = osThreadCreate(osThread(default_task), NULL);
+
+  /* definition and creation of table_task */
+  osThreadDef(table_task, TASK_table, osPriorityNormal, 0, 128);
+  table_taskHandle = osThreadCreate(osThread(table_task), NULL);
+
+  /* definition and creation of display_task */
+  osThreadDef(display_task, TASK_display, osPriorityNormal, 0, 128);
+  display_taskHandle = osThreadCreate(osThread(display_task), NULL);
+
+  /* definition and creation of control_task */
+  osThreadDef(control_task, TASK_control, osPriorityNormal, 0, 128);
+  control_taskHandle = osThreadCreate(osThread(control_task), NULL);
+
+  /* USER CODE BEGIN RTOS_THREADS */
+  /* add threads, ... */
+
+//  pvPortMalloc(xWantedSize);
+//  vPortFree(pv);
+
+
+
+  /* USER CODE END RTOS_THREADS */
+
+  /* Start scheduler */
+  osKernelStart();
+
+  /* We should never get here as control is now taken by the scheduler */
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
   while (1)
   {
-	  LCD_SetCursor(0, 0);
-	  sprintf(buf1, "Time work:%d", time);
-	  LCD_WriteString(buf1);
-	  time++;
-	  HAL_Delay(250);
-	  HAL_GPIO_TogglePin(GPIOC, GPIO_PIN_13);
-	  HAL_Delay(250);
-	  HAL_GPIO_TogglePin(GPIOC, GPIO_PIN_14);
-	  HAL_Delay(250);
-	  HAL_GPIO_TogglePin(GPIOC, GPIO_PIN_15);
-	  HAL_Delay(250);
-
-	  DS18B20_ReadTempALL(temp);
-
-	  LCD_SetCursor(1, 0);
-	  sprintf(buf2, "Temp1:%.2f    ", temp[0]);
-	  LCD_WriteString(buf2);
-	  LCD_SetCursor(2, 0);
-	  sprintf(buf3, "Temp2:%.2f    ", temp[1]);
-	  LCD_WriteString(buf3);
-	  LCD_SetCursor(3, 0);
-	  sprintf(buf4, "Temp3:%.2f    ", temp[2]);
-	  LCD_WriteString(buf4);
-
-
-
-
-	  HAL_Delay(100);
-
-
-
-
-
-
-
-
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
@@ -305,9 +354,9 @@ static void MX_TIM14_Init(void)
 
   /* USER CODE END TIM14_Init 1 */
   htim14.Instance = TIM14;
-  htim14.Init.Prescaler = 72-1;
+  htim14.Init.Prescaler = 36-1;
   htim14.Init.CounterMode = TIM_COUNTERMODE_UP;
-  htim14.Init.Period = 65535;
+  htim14.Init.Period = 10-1;
   htim14.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
   htim14.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_DISABLE;
   if (HAL_TIM_Base_Init(&htim14) != HAL_OK)
@@ -374,7 +423,7 @@ static void MX_GPIO_Init(void)
   /*Configure GPIO pin Output Level */
   HAL_GPIO_WritePin(GPIOC, LED_1_Pin|LED_2_Pin|LED_3_Pin|DS18B20_1WIRE_Pin
                           |GPIO_PIN_4|GPIO_PIN_5|AXIS_Y_PULSE_Pin|AXIS_Y_EN_Pin
-                          |AXIS_X_DIR_Pin|AXIS_X_PULSE_Pin|CULLER_Pin|AXIS_X_LIM_Pin, GPIO_PIN_RESET);
+                          |AXIS_X_DIR_Pin|AXIS_X_PULSE_Pin|CULLER_Pin, GPIO_PIN_RESET);
 
   /*Configure GPIO pin Output Level */
   HAL_GPIO_WritePin(GPIOA, SPINDLE_Pin|SPI_CS_Pin|AXIS_X_EN_Pin, GPIO_PIN_RESET);
@@ -386,10 +435,10 @@ static void MX_GPIO_Init(void)
 
   /*Configure GPIO pins : LED_1_Pin LED_2_Pin LED_3_Pin DS18B20_1WIRE_Pin
                            PC4 PC5 AXIS_Y_PULSE_Pin AXIS_Y_EN_Pin
-                           AXIS_X_DIR_Pin AXIS_X_PULSE_Pin CULLER_Pin AXIS_X_LIM_Pin */
+                           AXIS_X_DIR_Pin AXIS_X_PULSE_Pin CULLER_Pin */
   GPIO_InitStruct.Pin = LED_1_Pin|LED_2_Pin|LED_3_Pin|DS18B20_1WIRE_Pin
                           |GPIO_PIN_4|GPIO_PIN_5|AXIS_Y_PULSE_Pin|AXIS_Y_EN_Pin
-                          |AXIS_X_DIR_Pin|AXIS_X_PULSE_Pin|CULLER_Pin|AXIS_X_LIM_Pin;
+                          |AXIS_X_DIR_Pin|AXIS_X_PULSE_Pin|CULLER_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
@@ -437,6 +486,12 @@ static void MX_GPIO_Init(void)
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
 
+  /*Configure GPIO pin : AXIS_X_LIM_Pin */
+  GPIO_InitStruct.Pin = AXIS_X_LIM_Pin;
+  GPIO_InitStruct.Mode = GPIO_MODE_IT_RISING;
+  GPIO_InitStruct.Pull = GPIO_NOPULL;
+  HAL_GPIO_Init(AXIS_X_LIM_GPIO_Port, &GPIO_InitStruct);
+
   /*Configure GPIO pin : AXIS_Y_LIM_Pin */
   GPIO_InitStruct.Pin = AXIS_Y_LIM_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_IT_RISING;
@@ -458,31 +513,157 @@ static void MX_GPIO_Init(void)
 
 void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim) {
 
+	if (htim->Instance == TIM14) {
+		dl_CheckPWM();
 
-
-	GLB_Timer += 1;
-
-
-
-
-
-
-
+	}
 }
 
 
 
 
+void vApplicationIdleHook(int tag) {
 
+//	__NOP();
+	idle_tick++;
 
-
-
-
-
-
-
-
+}
 /* USER CODE END 4 */
+
+/* USER CODE BEGIN Header_TASK_default */
+/**
+  * @brief  Function implementing the default_task thread.
+  * @param  argument: Not used
+  * @retval None
+  */
+/* USER CODE END Header_TASK_default */
+void TASK_default(void const * argument)
+{
+  /* USER CODE BEGIN 5 */
+
+
+//	TickType_t xLastWakeTime;
+//	const TickType_t xFrequency = 250 / portTICK_PERIOD_MS;
+
+
+  /* Infinite loop */
+  for(;;)
+  {
+//	  HAL_GPIO_TogglePin(GPIOC, GPIO_PIN_13);
+//	  osDelay(500);
+
+
+
+
+//	  vTaskDelayUntil(&xLastWakeTime, xFrequency);
+	  // vTaskDelayUntil(&xLastWakeTime, xFrequency);
+  }
+  /* USER CODE END 5 */
+}
+
+/* USER CODE BEGIN Header_TASK_table */
+/**
+* @brief Function implementing the table_task thread.
+* @param argument: Not used
+* @retval None
+*/
+/* USER CODE END Header_TASK_table */
+void TASK_table(void const * argument)
+{
+  /* USER CODE BEGIN TASK_table */
+
+
+
+
+
+  /* Infinite loop */
+  for(;;)
+  {
+
+	  if (1) {
+
+
+		  tbMove(point.x, point.y, point.z);
+
+	  }
+
+
+
+
+
+
+  }
+  /* USER CODE END TASK_table */
+}
+
+/* USER CODE BEGIN Header_TASK_display */
+/**
+* @brief Function implementing the display_task thread.
+* @param argument: Not used
+* @retval None
+*/
+/* USER CODE END Header_TASK_display */
+void TASK_display(void const * argument)
+{
+  /* USER CODE BEGIN TASK_display */
+
+
+
+
+
+
+
+  /* Infinite loop */
+  for(;;)
+  {
+	  HAL_GPIO_TogglePin(GPIOC, GPIO_PIN_13);
+	  osDelay(500);
+
+
+
+
+
+
+
+
+  }
+  /* USER CODE END TASK_display */
+}
+
+/* USER CODE BEGIN Header_TASK_control */
+/**
+* @brief Function implementing the control_task thread.
+* @param argument: Not used
+* @retval None
+*/
+/* USER CODE END Header_TASK_control */
+void TASK_control(void const * argument)
+{
+  /* USER CODE BEGIN TASK_control */
+
+
+
+
+
+  /* Infinite loop */
+  for(;;)
+  {
+
+
+
+
+
+
+
+    osDelay(1);
+
+
+
+
+
+  }
+  /* USER CODE END TASK_control */
+}
 
 /**
   * @brief  This function is executed in case of error occurrence.
@@ -498,8 +679,7 @@ void Error_Handler(void)
   }
   /* USER CODE END Error_Handler_Debug */
 }
-
-#ifdef  USE_FULL_ASSERT
+#ifdef USE_FULL_ASSERT
 /**
   * @brief  Reports the name of the source file and the source line number
   *         where the assert_param error has occurred.
