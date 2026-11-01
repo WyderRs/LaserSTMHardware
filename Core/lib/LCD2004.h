@@ -36,7 +36,7 @@ void LCD_WriteChar(char c);
 void LCD_WriteString(const char *str);
 void LCD_Backlight(uint8_t state);
 void LCD_Clear();
-
+void LCD_SetStateCursor(_Bool enable, _Bool blink);
 
 
 

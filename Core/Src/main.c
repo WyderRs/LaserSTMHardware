@@ -18,16 +18,17 @@
 /* USER CODE END Header */
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
-#include "cmsis_os.h"
 #include "fatfs.h"
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 #include "stdio.h"
+#include <stdbool.h>
 
 #include "../lib/LCD2004.h"
-#include "../lib/DriverLib.h"
 #include "../lib/SD.h"
+#include "../lib/tableTool.h"
+#include "../lib/g_code.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -46,45 +47,32 @@
 /* USER CODE END PM */
 
 /* Private variables ---------------------------------------------------------*/
+ADC_HandleTypeDef hadc1;
+
 I2C_HandleTypeDef hi2c1;
 
 SPI_HandleTypeDef hspi1;
 
+TIM_HandleTypeDef htim3;
+TIM_HandleTypeDef htim11;
 TIM_HandleTypeDef htim14;
 
 UART_HandleTypeDef huart1;
+DMA_HandleTypeDef hdma_usart1_rx;
 
-osThreadId default_taskHandle;
-osThreadId table_taskHandle;
-osThreadId display_taskHandle;
-osThreadId control_taskHandle;
 /* USER CODE BEGIN PV */
 /********************************************************/
 
-
-/* display */
-char display_buf[20];
-/* table */
 
 /********************************************************/
 uint16_t time = 0;
 uint32_t idle_tick;
 extern FATFS fs;
 extern FIL fil;
+extern Tool_Typedef tTool;
 
-
-
-Point_t point;
+//Point_t point;
 /********************************************************/
-/* Functions */
-
-
-
-
-
-
-
-
 
 
 /********************************************************/
@@ -93,15 +81,14 @@ Point_t point;
 /* Private function prototypes -----------------------------------------------*/
 void SystemClock_Config(void);
 static void MX_GPIO_Init(void);
+static void MX_DMA_Init(void);
 static void MX_I2C1_Init(void);
 static void MX_SPI1_Init(void);
 static void MX_TIM14_Init(void);
 static void MX_USART1_UART_Init(void);
-void TASK_default(void const * argument);
-void TASK_table(void const * argument);
-void TASK_display(void const * argument);
-void TASK_control(void const * argument);
-
+static void MX_TIM11_Init(void);
+static void MX_TIM3_Init(void);
+static void MX_ADC1_Init(void);
 /* USER CODE BEGIN PFP */
 /* USER CODE END PFP */
 
@@ -119,7 +106,10 @@ int main(void)
 
   /* USER CODE BEGIN 1 */
 
+
+
   /* USER CODE END 1 */
+
 
   /* MCU Configuration--------------------------------------------------------*/
 
@@ -139,87 +129,261 @@ int main(void)
 
   /* Initialize all configured peripherals */
   MX_GPIO_Init();
+  MX_DMA_Init();
   MX_I2C1_Init();
   MX_SPI1_Init();
   MX_TIM14_Init();
   MX_USART1_UART_Init();
   MX_FATFS_Init();
+  MX_TIM11_Init();
+  MX_TIM3_Init();
+  MX_ADC1_Init();
   /* USER CODE BEGIN 2 */
 
-
-//  HAL_TIM_Base_Start_IT(&htim14);
-
-
-
-  tbInit();
+  tInit();
   LCD_Init(0x4E, 20, 4);
   LCD_Clear();
-
   LCD_SetCursor(0, 0);
-  LCD_WriteString("Bootting...");
+  LCD_WriteString("Reset");
+  LCD_SetCursor(1, 0);
+  LCD_WriteString("Coordinates...");
 
-  HAL_Delay(1000);
-  tbDriver(ON);
+//  tHome();
+//  LCD_Clear();
 
-  HAL_Delay(1000);
-  tbDriver(OFF);
-//  tbMove(10, 10, 0);
+//  LCD_SetCursor(0, 0);
+//  LCD_WriteString("Tool ready");
+//
+//  LCD_SetCursor(1, 0);
+//  LCD_WriteString("Please, press");
+//  LCD_SetCursor(2, 0);
+//  LCD_WriteString("enter button");
+//
+//  while(!tTool.Encoder.Button_state) {}
+//  tTool.Encoder.Button_state = 0;
+
+//  LCD_Clear();
+//  LCD_SetCursor(0, 1);
+//  LCD_WriteString(":Hand mode");
+//  LCD_SetCursor(1, 1);
+//  LCD_WriteString(":USB mode");
+//  LCD_SetCursor(2, 1);
+//  LCD_WriteString(":SD mode");
+//  LCD_SetCursor(3, 1);
+//  LCD_WriteString(":Settings");
+//
+//  LCD_SetCursor(0, 0);
+//  LCD_WriteChar(0x7E);
+//
+//  uint8_t disp_pos = 0;
+
+  /**************************************************************************/
+//  while(1) {
+//	  if (tTool.Encoder.count_last_rotate > 0) {
+//		  if (tTool.Encoder.current_rotate_side == Forward) {
+//			  if (disp_pos < 4) disp_pos++;
+//			  if (disp_pos < 4) {
+//				  if (disp_pos != 0) {
+//					  LCD_SetCursor(disp_pos - 1, 0);
+//					  LCD_WriteChar(' ');
+//				  }
+//				  LCD_SetCursor(disp_pos, 0);
+//				  LCD_WriteChar(0x7E);
+//			  }
+//		  }
+//		  else {
+//			  if (disp_pos > 0) disp_pos--;
+//			  if ((disp_pos <= 3) && (disp_pos >= 0)) {
+//				  if (disp_pos != 3) {
+//					  LCD_SetCursor(disp_pos + 1, 0);
+//					  LCD_WriteChar(' ');
+//				  }
+//				  LCD_SetCursor(disp_pos, 0);
+//				  LCD_WriteChar(0x7E);
+//			  }
+//		  }
+//		  tTool.Encoder.count_last_rotate = 0;
+//	  }
+//	  if (tTool.Encoder.Button_state == true) {
+//		  tTool.Encoder.Button_state = false;
+//		  if (disp_pos == 0) {
+//			  tTool.WorkMode = Hand_Mode;
+//			  LCD_Clear();
+//			  LCD_SetCursor(0, 0);
+//			  LCD_WriteString("Mode:Hand_X");
+//
+//			  char buf[3][20] = {0, };
+//			  float x = 0, y = 0, z = 0;
+//			  float trg_cord = 0;
+//			  enum sid_t {
+//				  _x = 0,
+//				  _y,
+//				  _z,
+//			  } sid;
+//			  sid = _x;
+//			  while(1) {
+//				  if (tTool.Encoder.count_last_rotate >= 1) {
+//					  if (tTool.Encoder.current_rotate_side == Forward) {
+////						  x += tTool.Settings.stpLineValue;
+//						  trg_cord += 5;
+//					  }
+//					  else if (tTool.Encoder.current_rotate_side == BackForward) {
+//
+////						  if (x > tTool.Settings.stpLineValue) x -= tTool.Settings.stpLineValue;
+//						  if (trg_cord > 5) trg_cord -= 5;
+//					  }
+//					  if (sid == _x) {
+//						  x = trg_cord;
+//						  tMoveGlobal(x, y, z);
+//					  }
+//					  else if (sid == _y) {
+//						  y = trg_cord;
+//						  tMoveGlobal(x, y, z);
+//					  }
+//					  else if (sid == _z) {
+//						  z = trg_cord;
+//						  tMoveGlobal(x, y, z);
+//					  }
+//
+//
+////					  LCD_SetCursor(1, 1);
+////					  sprintf(buf[0], "X:%.4f    ", tTool.head.tAxis[0].current_pos_coord);
+////					  LCD_WriteString(buf[0]);
+////					  LCD_SetCursor(2, 1);
+////					  sprintf(buf[1], "Y:%.4f    ", tTool.head.tAxis[1].current_pos_coord);
+////					  LCD_WriteString(buf[1]);
+////					  LCD_SetCursor(3, 1);
+////					  sprintf(buf[2], "Z:%.4f    ", tTool.head.tAxis[2].current_pos_coord);
+////					  LCD_WriteString(buf[2]);
+//
+//					  tTool.Encoder.count_last_rotate = 0;
+//				  }
+//				  if (tTool.Encoder.Button_state == true) {
+//					  tTool.Encoder.Button_state = false;
+//
+//					  if (sid == _x) x = trg_cord;
+//					  else if (sid == _y) y = trg_cord;
+//					  else if (sid == _z) z = trg_cord;
+//					  trg_cord = 0;
+//
+//					  LCD_Clear();
+//
+//					  LCD_SetCursor(0, 1);
+//					  LCD_WriteString(":Exit");
+//					  LCD_SetCursor(1, 1);
+//					  LCD_WriteString(":AXIS_X");
+//					  LCD_SetCursor(2, 1);
+//					  LCD_WriteString(":AXIS_Y");
+//					  LCD_SetCursor(3, 1);
+//					  LCD_WriteString(":AXIS_Z");
+//					  LCD_SetCursor(0, 0);
+//					  LCD_WriteChar(0x7E);
+//
+//					  disp_pos = 0;
+//					  while (1) {
+//						  if (tTool.Encoder.count_last_rotate > 0) {
+//							  if (tTool.Encoder.current_rotate_side == Forward) {
+//								  if (disp_pos < 3) disp_pos++;
+//								  if (disp_pos < 4) {
+//									  if (disp_pos != 1) {
+//										  LCD_SetCursor(disp_pos - 1, 0);
+//										  LCD_WriteChar(' ');
+//									  }
+//									  LCD_SetCursor(disp_pos, 0);
+//									  LCD_WriteChar(0x7E);
+//								  }
+//							  }
+//							  else {
+//								  if (disp_pos > 1) disp_pos--;
+//								  if ((disp_pos <= 3) && (disp_pos >= 0)) {
+//									  if (disp_pos != 3) {
+//										  LCD_SetCursor(disp_pos + 1, 0);
+//										  LCD_WriteChar(' ');
+//									  }
+//									  LCD_SetCursor(disp_pos, 0);
+//									  LCD_WriteChar(0x7E);
+//								  }
+//							  }
+//							  tTool.Encoder.count_last_rotate = 0;
+//						  }
+//						  if (tTool.Encoder.Button_state == true) {
+//							  if (disp_pos == 4) disp_pos = 3;
+//							  if (disp_pos == 1) sid = _x;
+//							  else if (disp_pos == 2) sid = _y;
+//							  else if (disp_pos == 3) sid = _z;
+//
+//							  LCD_Clear();
+//							  LCD_SetCursor(0, 0);
+//							  if (sid == _x) LCD_WriteString("Mode:Hand_X");
+//							  else if (sid == _y) LCD_WriteString("Mode:Hand_Y");
+//							  else if (sid == _z) LCD_WriteString("Mode:Hand_Z");
+//
+//							  tTool.Encoder.Button_state = false;
+//							  break;
+//						  }
+//					  }
+//				  }
+//			  }
+//		  }
+//		  else if (disp_pos == 1) {
+//			  LCD_Clear();
+//			  LCD_SetCursor(0, 0);
+//			  LCD_WriteString("Mode:USB (AUTO)");
+//
+//			  break;
+//		  }
+//		  tTool.Encoder.Button_state = false;
+//	  }
+//  }
+
+//  GC_G0(30, 30, 30);
+//  HAL_Delay(1000);
+//  tMoveSetSpeed(10);
+//  GC_G1(50, 50, 50);
+//  GC_G28(GC_Z_AXIS);
+
+
+
+
+
+
+
+
+
+//  HAL_Delay(1000);
+
+
+
 
 
   /* USER CODE END 2 */
-
-  /* USER CODE BEGIN RTOS_MUTEX */
-  /* add mutexes, ... */
-  /* USER CODE END RTOS_MUTEX */
-
-  /* USER CODE BEGIN RTOS_SEMAPHORES */
-  /* add semaphores, ... */
-  /* USER CODE END RTOS_SEMAPHORES */
-
-  /* USER CODE BEGIN RTOS_TIMERS */
-  /* start timers, add new ones, ... */
-  /* USER CODE END RTOS_TIMERS */
-
-  /* USER CODE BEGIN RTOS_QUEUES */
-  /* add queues, ... */
-  /* USER CODE END RTOS_QUEUES */
-
-  /* Create the thread(s) */
-  /* definition and creation of default_task */
-  osThreadDef(default_task, TASK_default, osPriorityIdle, 0, 128);
-  default_taskHandle = osThreadCreate(osThread(default_task), NULL);
-
-  /* definition and creation of table_task */
-  osThreadDef(table_task, TASK_table, osPriorityNormal, 0, 128);
-  table_taskHandle = osThreadCreate(osThread(table_task), NULL);
-
-  /* definition and creation of display_task */
-  osThreadDef(display_task, TASK_display, osPriorityNormal, 0, 128);
-  display_taskHandle = osThreadCreate(osThread(display_task), NULL);
-
-  /* definition and creation of control_task */
-  osThreadDef(control_task, TASK_control, osPriorityNormal, 0, 128);
-  control_taskHandle = osThreadCreate(osThread(control_task), NULL);
-
-  /* USER CODE BEGIN RTOS_THREADS */
-  /* add threads, ... */
-
-//  pvPortMalloc(xWantedSize);
-//  vPortFree(pv);
-
-
-
-  /* USER CODE END RTOS_THREADS */
-
-  /* Start scheduler */
-  osKernelStart();
-
-  /* We should never get here as control is now taken by the scheduler */
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
   while (1)
   {
+
+//	  if(tTool.VCP_Config.VCP_command_IsReceived) {
+//		  for (uint32_t i = 0; i < tTool.VCP_Config.VCP_cnt_last_file; i++) {
+//			  DATA_GCODE[i] = tTool.VCP_Config.VCP_data[i + 2];
+//		  }
+//		  StartGCodeStorage((unsigned char*)&DATA_GCODE);
+//		  memset(&tTool.VCP_Config.VCP_data[0], '\0', sizeof(tTool.VCP_Config.VCP_data));
+//		  tTool.VCP_Config.VCP_command_IsReceived = false;
+//
+//		  HAL_UART_Transmit_IT(&huart1, (uint8_t*)"OK", 2);
+//	  }
+
+
+
+
+
+
+//	  HAL_Delay(500);
+//	  LED_FREE_OP_TGL;
+
+
+
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
@@ -235,6 +399,7 @@ void SystemClock_Config(void)
 {
   RCC_OscInitTypeDef RCC_OscInitStruct = {0};
   RCC_ClkInitTypeDef RCC_ClkInitStruct = {0};
+  RCC_PeriphCLKInitTypeDef PeriphClkInit = {0};
 
   /** Initializes the RCC Oscillators according to the specified parameters
   * in the RCC_OscInitTypeDef structure.
@@ -264,6 +429,59 @@ void SystemClock_Config(void)
   {
     Error_Handler();
   }
+  PeriphClkInit.PeriphClockSelection = RCC_PERIPHCLK_ADC;
+  PeriphClkInit.AdcClockSelection = RCC_ADCPCLK2_DIV6;
+  if (HAL_RCCEx_PeriphCLKConfig(&PeriphClkInit) != HAL_OK)
+  {
+    Error_Handler();
+  }
+}
+
+/**
+  * @brief ADC1 Initialization Function
+  * @param None
+  * @retval None
+  */
+static void MX_ADC1_Init(void)
+{
+
+  /* USER CODE BEGIN ADC1_Init 0 */
+
+  /* USER CODE END ADC1_Init 0 */
+
+  ADC_ChannelConfTypeDef sConfig = {0};
+
+  /* USER CODE BEGIN ADC1_Init 1 */
+
+  /* USER CODE END ADC1_Init 1 */
+
+  /** Common config
+  */
+  hadc1.Instance = ADC1;
+  hadc1.Init.ScanConvMode = ADC_SCAN_DISABLE;
+  hadc1.Init.ContinuousConvMode = DISABLE;
+  hadc1.Init.DiscontinuousConvMode = DISABLE;
+  hadc1.Init.ExternalTrigConv = ADC_SOFTWARE_START;
+  hadc1.Init.DataAlign = ADC_DATAALIGN_RIGHT;
+  hadc1.Init.NbrOfConversion = 1;
+  if (HAL_ADC_Init(&hadc1) != HAL_OK)
+  {
+    Error_Handler();
+  }
+
+  /** Configure Regular Channel
+  */
+  sConfig.Channel = ADC_CHANNEL_0;
+  sConfig.Rank = ADC_REGULAR_RANK_1;
+  sConfig.SamplingTime = ADC_SAMPLETIME_1CYCLE_5;
+  if (HAL_ADC_ConfigChannel(&hadc1, &sConfig) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  /* USER CODE BEGIN ADC1_Init 2 */
+
+  /* USER CODE END ADC1_Init 2 */
+
 }
 
 /**
@@ -339,6 +557,108 @@ static void MX_SPI1_Init(void)
 }
 
 /**
+  * @brief TIM3 Initialization Function
+  * @param None
+  * @retval None
+  */
+static void MX_TIM3_Init(void)
+{
+
+  /* USER CODE BEGIN TIM3_Init 0 */
+
+  /* USER CODE END TIM3_Init 0 */
+
+  TIM_ClockConfigTypeDef sClockSourceConfig = {0};
+  TIM_MasterConfigTypeDef sMasterConfig = {0};
+  TIM_OC_InitTypeDef sConfigOC = {0};
+
+  /* USER CODE BEGIN TIM3_Init 1 */
+
+  /* USER CODE END TIM3_Init 1 */
+  htim3.Instance = TIM3;
+  htim3.Init.Prescaler = 72-1;
+  htim3.Init.CounterMode = TIM_COUNTERMODE_UP;
+  htim3.Init.Period = 100-1;
+  htim3.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
+  htim3.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_DISABLE;
+  if (HAL_TIM_Base_Init(&htim3) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  sClockSourceConfig.ClockSource = TIM_CLOCKSOURCE_INTERNAL;
+  if (HAL_TIM_ConfigClockSource(&htim3, &sClockSourceConfig) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  if (HAL_TIM_PWM_Init(&htim3) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  sMasterConfig.MasterOutputTrigger = TIM_TRGO_RESET;
+  sMasterConfig.MasterSlaveMode = TIM_MASTERSLAVEMODE_DISABLE;
+  if (HAL_TIMEx_MasterConfigSynchronization(&htim3, &sMasterConfig) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  sConfigOC.OCMode = TIM_OCMODE_PWM1;
+  sConfigOC.Pulse = 0;
+  sConfigOC.OCPolarity = TIM_OCPOLARITY_HIGH;
+  sConfigOC.OCFastMode = TIM_OCFAST_DISABLE;
+  if (HAL_TIM_PWM_ConfigChannel(&htim3, &sConfigOC, TIM_CHANNEL_1) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  if (HAL_TIM_PWM_ConfigChannel(&htim3, &sConfigOC, TIM_CHANNEL_2) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  if (HAL_TIM_PWM_ConfigChannel(&htim3, &sConfigOC, TIM_CHANNEL_3) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  if (HAL_TIM_PWM_ConfigChannel(&htim3, &sConfigOC, TIM_CHANNEL_4) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  /* USER CODE BEGIN TIM3_Init 2 */
+
+  /* USER CODE END TIM3_Init 2 */
+  HAL_TIM_MspPostInit(&htim3);
+
+}
+
+/**
+  * @brief TIM11 Initialization Function
+  * @param None
+  * @retval None
+  */
+static void MX_TIM11_Init(void)
+{
+
+  /* USER CODE BEGIN TIM11_Init 0 */
+
+  /* USER CODE END TIM11_Init 0 */
+
+  /* USER CODE BEGIN TIM11_Init 1 */
+
+  /* USER CODE END TIM11_Init 1 */
+  htim11.Instance = TIM11;
+  htim11.Init.Prescaler = 72-1;
+  htim11.Init.CounterMode = TIM_COUNTERMODE_UP;
+  htim11.Init.Period = 10-1;
+  htim11.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
+  htim11.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_DISABLE;
+  if (HAL_TIM_Base_Init(&htim11) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  /* USER CODE BEGIN TIM11_Init 2 */
+
+  /* USER CODE END TIM11_Init 2 */
+
+}
+
+/**
   * @brief TIM14 Initialization Function
   * @param None
   * @retval None
@@ -403,6 +723,22 @@ static void MX_USART1_UART_Init(void)
 }
 
 /**
+  * Enable DMA controller clock
+  */
+static void MX_DMA_Init(void)
+{
+
+  /* DMA controller clock enable */
+  __HAL_RCC_DMA1_CLK_ENABLE();
+
+  /* DMA interrupt init */
+  /* DMA1_Channel5_IRQn interrupt configuration */
+  HAL_NVIC_SetPriority(DMA1_Channel5_IRQn, 0, 0);
+  HAL_NVIC_EnableIRQ(DMA1_Channel5_IRQn);
+
+}
+
+/**
   * @brief GPIO Initialization Function
   * @param None
   * @retval None
@@ -422,23 +758,22 @@ static void MX_GPIO_Init(void)
 
   /*Configure GPIO pin Output Level */
   HAL_GPIO_WritePin(GPIOC, LED_1_Pin|LED_2_Pin|LED_3_Pin|DS18B20_1WIRE_Pin
-                          |GPIO_PIN_4|GPIO_PIN_5|AXIS_Y_PULSE_Pin|AXIS_Y_EN_Pin
-                          |AXIS_X_DIR_Pin|AXIS_X_PULSE_Pin|CULLER_Pin, GPIO_PIN_RESET);
+                          |GPIO_PIN_4|GPIO_PIN_5|EPPROM_WP_Pin|CULLER_Pin, GPIO_PIN_RESET);
 
   /*Configure GPIO pin Output Level */
-  HAL_GPIO_WritePin(GPIOA, SPINDLE_Pin|SPI_CS_Pin|AXIS_X_EN_Pin, GPIO_PIN_RESET);
+  HAL_GPIO_WritePin(GPIOA, SPI_CS_Pin|AXIS_X_DIR_Pin|AXIS_X_EN_Pin, GPIO_PIN_RESET);
 
   /*Configure GPIO pin Output Level */
-  HAL_GPIO_WritePin(GPIOB, GPIO_PIN_0|GPIO_PIN_1|GPIO_PIN_2|SPINDLEB10_Pin
-                          |AXIS_Z_DIR_Pin|AXIS_Z_PULSE_Pin|AXIS_Z_EN_Pin|AXIS_Y_DIR_Pin
-                          |LASER_PULSE_Pin, GPIO_PIN_RESET);
+  HAL_GPIO_WritePin(GPIOB, GPIO_PIN_0|GPIO_PIN_1|GPIO_PIN_2|TS_Z_Pin
+                          |AXIS_Z_DIR_Pin|AXIS_Z_EN_Pin|AXIS_Y_EN_Pin|LASER_PULSE_Pin, GPIO_PIN_RESET);
+
+  /*Configure GPIO pin Output Level */
+  HAL_GPIO_WritePin(AXIS_Y_DIR_GPIO_Port, AXIS_Y_DIR_Pin, GPIO_PIN_SET);
 
   /*Configure GPIO pins : LED_1_Pin LED_2_Pin LED_3_Pin DS18B20_1WIRE_Pin
-                           PC4 PC5 AXIS_Y_PULSE_Pin AXIS_Y_EN_Pin
-                           AXIS_X_DIR_Pin AXIS_X_PULSE_Pin CULLER_Pin */
+                           PC4 PC5 EPPROM_WP_Pin CULLER_Pin */
   GPIO_InitStruct.Pin = LED_1_Pin|LED_2_Pin|LED_3_Pin|DS18B20_1WIRE_Pin
-                          |GPIO_PIN_4|GPIO_PIN_5|AXIS_Y_PULSE_Pin|AXIS_Y_EN_Pin
-                          |AXIS_X_DIR_Pin|AXIS_X_PULSE_Pin|CULLER_Pin;
+                          |GPIO_PIN_4|GPIO_PIN_5|EPPROM_WP_Pin|CULLER_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
@@ -450,59 +785,78 @@ static void MX_GPIO_Init(void)
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   HAL_GPIO_Init(GPIOC, &GPIO_InitStruct);
 
-  /*Configure GPIO pins : SPINDLE_Pin SPI_CS_Pin AXIS_X_EN_Pin */
-  GPIO_InitStruct.Pin = SPINDLE_Pin|SPI_CS_Pin|AXIS_X_EN_Pin;
+  /*Configure GPIO pins : SPI_CS_Pin AXIS_X_DIR_Pin AXIS_X_EN_Pin */
+  GPIO_InitStruct.Pin = SPI_CS_Pin|AXIS_X_DIR_Pin|AXIS_X_EN_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
   HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
 
-  /*Configure GPIO pin : ENC_IN_EXTI_Pin */
-  GPIO_InitStruct.Pin = ENC_IN_EXTI_Pin;
-  GPIO_InitStruct.Mode = GPIO_MODE_IT_RISING;
-  GPIO_InitStruct.Pull = GPIO_NOPULL;
-  HAL_GPIO_Init(ENC_IN_EXTI_GPIO_Port, &GPIO_InitStruct);
-
-  /*Configure GPIO pin : ENC_IN_GPIO_Pin */
-  GPIO_InitStruct.Pin = ENC_IN_GPIO_Pin;
-  GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
-  GPIO_InitStruct.Pull = GPIO_NOPULL;
-  HAL_GPIO_Init(ENC_IN_GPIO_GPIO_Port, &GPIO_InitStruct);
-
-  /*Configure GPIO pins : PB0 PB1 PB2 SPINDLEB10_Pin
-                           AXIS_Z_DIR_Pin AXIS_Z_PULSE_Pin AXIS_Z_EN_Pin AXIS_Y_DIR_Pin
+  /*Configure GPIO pins : PB0 PB1 PB2 TS_Z_Pin
+                           AXIS_Z_DIR_Pin AXIS_Z_EN_Pin AXIS_Y_DIR_Pin AXIS_Y_EN_Pin
                            LASER_PULSE_Pin */
-  GPIO_InitStruct.Pin = GPIO_PIN_0|GPIO_PIN_1|GPIO_PIN_2|SPINDLEB10_Pin
-                          |AXIS_Z_DIR_Pin|AXIS_Z_PULSE_Pin|AXIS_Z_EN_Pin|AXIS_Y_DIR_Pin
+  GPIO_InitStruct.Pin = GPIO_PIN_0|GPIO_PIN_1|GPIO_PIN_2|TS_Z_Pin
+                          |AXIS_Z_DIR_Pin|AXIS_Z_EN_Pin|AXIS_Y_DIR_Pin|AXIS_Y_EN_Pin
                           |LASER_PULSE_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
   HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
 
-  /*Configure GPIO pins : VP_ENABLE_Pin GPIO_INPUT_ENC_Pin */
-  GPIO_InitStruct.Pin = VP_ENABLE_Pin|GPIO_INPUT_ENC_Pin;
+  /*Configure GPIO pin : VP_ENABLE_Pin */
+  GPIO_InitStruct.Pin = VP_ENABLE_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
-  HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
+  HAL_GPIO_Init(VP_ENABLE_GPIO_Port, &GPIO_InitStruct);
 
   /*Configure GPIO pin : AXIS_X_LIM_Pin */
   GPIO_InitStruct.Pin = AXIS_X_LIM_Pin;
-  GPIO_InitStruct.Mode = GPIO_MODE_IT_RISING;
-  GPIO_InitStruct.Pull = GPIO_NOPULL;
+  GPIO_InitStruct.Mode = GPIO_MODE_IT_RISING_FALLING;
+  GPIO_InitStruct.Pull = GPIO_PULLUP;
   HAL_GPIO_Init(AXIS_X_LIM_GPIO_Port, &GPIO_InitStruct);
 
   /*Configure GPIO pin : AXIS_Y_LIM_Pin */
   GPIO_InitStruct.Pin = AXIS_Y_LIM_Pin;
-  GPIO_InitStruct.Mode = GPIO_MODE_IT_RISING;
-  GPIO_InitStruct.Pull = GPIO_NOPULL;
+  GPIO_InitStruct.Mode = GPIO_MODE_IT_RISING_FALLING;
+  GPIO_InitStruct.Pull = GPIO_PULLUP;
   HAL_GPIO_Init(AXIS_Y_LIM_GPIO_Port, &GPIO_InitStruct);
 
-  /*Configure GPIO pins : AXIS_Z_LIM_Pin EXTI_INPUT_ENC_Pin BUT_Pin */
-  GPIO_InitStruct.Pin = AXIS_Z_LIM_Pin|EXTI_INPUT_ENC_Pin|BUT_Pin;
+  /*Configure GPIO pin : AXIS_Z_LIM_Pin */
+  GPIO_InitStruct.Pin = AXIS_Z_LIM_Pin;
+  GPIO_InitStruct.Mode = GPIO_MODE_IT_RISING_FALLING;
+  GPIO_InitStruct.Pull = GPIO_PULLUP;
+  HAL_GPIO_Init(AXIS_Z_LIM_GPIO_Port, &GPIO_InitStruct);
+
+  /*Configure GPIO pin : GPIO_INPUT_ENC_Pin */
+  GPIO_InitStruct.Pin = GPIO_INPUT_ENC_Pin;
+  GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
+  GPIO_InitStruct.Pull = GPIO_PULLUP;
+  HAL_GPIO_Init(GPIO_INPUT_ENC_GPIO_Port, &GPIO_InitStruct);
+
+  /*Configure GPIO pin : EXTI_INPUT_ENC_Pin */
+  GPIO_InitStruct.Pin = EXTI_INPUT_ENC_Pin;
+  GPIO_InitStruct.Mode = GPIO_MODE_IT_FALLING;
+  GPIO_InitStruct.Pull = GPIO_PULLUP;
+  HAL_GPIO_Init(EXTI_INPUT_ENC_GPIO_Port, &GPIO_InitStruct);
+
+  /*Configure GPIO pin : BUT_Pin */
+  GPIO_InitStruct.Pin = BUT_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_IT_RISING;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
-  HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
+  HAL_GPIO_Init(BUT_GPIO_Port, &GPIO_InitStruct);
+
+  /* EXTI interrupt init*/
+  HAL_NVIC_SetPriority(EXTI2_IRQn, 0, 0);
+  HAL_NVIC_EnableIRQ(EXTI2_IRQn);
+
+  HAL_NVIC_SetPriority(EXTI3_IRQn, 0, 0);
+  HAL_NVIC_EnableIRQ(EXTI3_IRQn);
+
+  HAL_NVIC_SetPriority(EXTI9_5_IRQn, 0, 0);
+  HAL_NVIC_EnableIRQ(EXTI9_5_IRQn);
+
+  HAL_NVIC_SetPriority(EXTI15_10_IRQn, 0, 0);
+  HAL_NVIC_EnableIRQ(EXTI15_10_IRQn);
 
   /* USER CODE BEGIN MX_GPIO_Init_2 */
 
@@ -511,159 +865,11 @@ static void MX_GPIO_Init(void)
 
 /* USER CODE BEGIN 4 */
 
-void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim) {
-
-	if (htim->Instance == TIM14) {
-		dl_CheckPWM();
-
-	}
-}
 
 
 
 
-void vApplicationIdleHook(int tag) {
-
-//	__NOP();
-	idle_tick++;
-
-}
 /* USER CODE END 4 */
-
-/* USER CODE BEGIN Header_TASK_default */
-/**
-  * @brief  Function implementing the default_task thread.
-  * @param  argument: Not used
-  * @retval None
-  */
-/* USER CODE END Header_TASK_default */
-void TASK_default(void const * argument)
-{
-  /* USER CODE BEGIN 5 */
-
-
-//	TickType_t xLastWakeTime;
-//	const TickType_t xFrequency = 250 / portTICK_PERIOD_MS;
-
-
-  /* Infinite loop */
-  for(;;)
-  {
-//	  HAL_GPIO_TogglePin(GPIOC, GPIO_PIN_13);
-//	  osDelay(500);
-
-
-
-
-//	  vTaskDelayUntil(&xLastWakeTime, xFrequency);
-	  // vTaskDelayUntil(&xLastWakeTime, xFrequency);
-  }
-  /* USER CODE END 5 */
-}
-
-/* USER CODE BEGIN Header_TASK_table */
-/**
-* @brief Function implementing the table_task thread.
-* @param argument: Not used
-* @retval None
-*/
-/* USER CODE END Header_TASK_table */
-void TASK_table(void const * argument)
-{
-  /* USER CODE BEGIN TASK_table */
-
-
-
-
-
-  /* Infinite loop */
-  for(;;)
-  {
-
-	  if (1) {
-
-
-		  tbMove(point.x, point.y, point.z);
-
-	  }
-
-
-
-
-
-
-  }
-  /* USER CODE END TASK_table */
-}
-
-/* USER CODE BEGIN Header_TASK_display */
-/**
-* @brief Function implementing the display_task thread.
-* @param argument: Not used
-* @retval None
-*/
-/* USER CODE END Header_TASK_display */
-void TASK_display(void const * argument)
-{
-  /* USER CODE BEGIN TASK_display */
-
-
-
-
-
-
-
-  /* Infinite loop */
-  for(;;)
-  {
-	  HAL_GPIO_TogglePin(GPIOC, GPIO_PIN_13);
-	  osDelay(500);
-
-
-
-
-
-
-
-
-  }
-  /* USER CODE END TASK_display */
-}
-
-/* USER CODE BEGIN Header_TASK_control */
-/**
-* @brief Function implementing the control_task thread.
-* @param argument: Not used
-* @retval None
-*/
-/* USER CODE END Header_TASK_control */
-void TASK_control(void const * argument)
-{
-  /* USER CODE BEGIN TASK_control */
-
-
-
-
-
-  /* Infinite loop */
-  for(;;)
-  {
-
-
-
-
-
-
-
-    osDelay(1);
-
-
-
-
-
-  }
-  /* USER CODE END TASK_control */
-}
 
 /**
   * @brief  This function is executed in case of error occurrence.

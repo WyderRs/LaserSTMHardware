@@ -41,10 +41,8 @@ static void LCD_WriteByte(uint8_t byte, uint8_t rs)
     if (byte == 0x01 || byte == 0x02 ||
         (byte >= 0x28 && byte <= 0x2F)) {
         DelayMs(10);
-//    	for(uint32_t i = 0; i < 10000; i++) {}
     } else {
         DelayMs(10);
-//    	for(uint32_t i = 0; i < 10000; i++) {}
     }
 }
 
@@ -135,6 +133,10 @@ void LCD_Clear()
 	LCD_WriteByte(0x01, 0);
 }
 
+void LCD_SetStateCursor(_Bool enable, _Bool blink) {
+	uint8_t dat = 0x0C | (enable << 1) | (blink << 0);
+	LCD_WriteByte(dat, 0);
+}
 
 
 
