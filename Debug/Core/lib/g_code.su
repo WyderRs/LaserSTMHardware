@@ -1,0 +1,11 @@
+../Core/lib/g_code.c:17:6:GC_G0	24	static
+../Core/lib/g_code.c:26:6:GC_G1	24	static
+../Core/lib/g_code.c:31:6:GC_G2	24	static
+../Core/lib/g_code.c:36:6:GC_G3	24	static
+../Core/lib/g_code.c:41:6:GC_M3	4	static
+../Core/lib/g_code.c:45:6:GC_M5	4	static
+../Core/lib/g_code.c:49:6:GC_M30	4	static
+../Core/lib/g_code.c:55:6:GC_S	16	static
+../Core/lib/g_code.c:58:6:GC_F	16	static
+../Core/lib/g_code.c:62:6:GC_G28	16	static
+../Core/lib/g_code.c:77:6:GC_G31	4	static

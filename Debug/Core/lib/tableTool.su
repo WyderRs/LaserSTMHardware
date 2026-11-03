@@ -1,0 +1,14 @@
+../Core/lib/tableTool.c:374:6:HAL_GPIO_EXTI_Callback	16	static
+../Core/lib/tableTool.c:423:6:HAL_TIM_PeriodElapsedCallback	16	static,ignoring_inline_asm
+../Core/lib/tableTool.c:435:6:HAL_TIM_PWM_PulseFinishedCallback	16	static
+../Core/lib/tableTool.c:495:6:tInit	8	static
+../Core/lib/tableTool.c:747:6:tToolAxisEN	16	static
+../Core/lib/tableTool.c:750:6:tToolAxisWork	16	static
+../Core/lib/tableTool.c:760:6:tToolAxisDiraction	16	static
+../Core/lib/tableTool.c:763:6:tToolFeedrateType	16	static
+../Core/lib/tableTool.c:766:6:tToolFeedrate	32	static
+../Core/lib/tableTool.c:794:6:tHome	16	static
+../Core/lib/tableTool.c:820:6:tToolPerformTimerEN	16	static
+../Core/lib/tableTool.c:825:6:tMode	16	static
+../Core/lib/tableTool.c:829:6:tMoveDirect	24	static
+../Core/lib/tableTool.c:883:6:tMove	104	static

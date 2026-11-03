@@ -223,6 +223,15 @@
 #define					MODE_G0_FEEDRATE	10.0f	// mm/s
 
 /*******************/
+typedef enum feedrate_type_t {
+	ftt_mm_sec = 0,
+	ftt_mm_min,
+} feedrate_type_t;
+typedef struct Point_t {
+	float x;
+	float y;
+	float z;
+} Point_t;
 typedef enum GMode_t {
 	_G0_mode = 0,				/* Fast positioning */
 	_G1_mode,					/* Linear interpolation */
@@ -279,13 +288,14 @@ typedef struct tAxis_t {
 	uint32_t			pulse_counter;		// counter
 	side_t				direction;			// direction of side for rotate
 	/**********/
-	float				installed_speed_mm;	// current speed in mm
 	float 				cpc;				// current position of this coordinate axis
+	state_en_t			state_en;			// state ax
 	/**********/
 } tAxis_t;
 typedef struct ToolHead_Typedef {
 	tAxis_t 			tAxis[3];		/* x, y, z */
 
+	Point_t 			HCP;				/* Head current position */
 	float 	Feed;
 
 } ToolHead_Typedef;
@@ -297,8 +307,10 @@ typedef struct Tool_Typedef {
 	ToolCuller_Typedef	culler;
 
 
-
-
+	float 			trg_pos[3];
+	float 			curr_pos[3];
+	state_en_t 		ax_st[3];
+	feedrate_type_t	ftt;
 
 } Tool_Typedef;
 
@@ -308,6 +320,7 @@ void tInit(void);										/* Init device 	*/
 void tToolAxisEN(tAxis_t *ax, state_en_t st); 			/* Set state axis */
 void tToolAxisWork(tAxis_t *ax, state_en_t st);			/* Axis moving is started or stoped*/
 void tToolAxisDiraction(tAxis_t *ax, side_t side);		/* Set direction for axis */
+void tToolFeedrateType(feedrate_type_t ftt);			/* Type of feedrate */
 void tToolFeedrate(float feedrate); 	/* Set feedrate */
 void tHome(void);										/* Go home 		*/
 void tMode(GMode_t gm);									/* Enter g-mode */
@@ -315,7 +328,6 @@ void tMove(float x, float y, float z);					/* Move to target position from the c
 
 
 void tToolPerformTimerEN(state_en_t st);				/* Timer to perform */
-
 
 
 
