@@ -335,21 +335,9 @@ int main(void)
 //	  }
 //  }
 
-//  GC_G0(30, 30, 30);
-//  HAL_Delay(1000);
-//  tMoveSetSpeed(10);
-//  GC_G1(50, 50, 50);
-//  GC_G28(GC_Z_AXIS);
 
 
 
-
-
-
-
-
-
-//  HAL_Delay(1000);
 
 
 
@@ -362,24 +350,8 @@ int main(void)
   while (1)
   {
 
-//	  if(tTool.VCP_Config.VCP_command_IsReceived) {
-//		  for (uint32_t i = 0; i < tTool.VCP_Config.VCP_cnt_last_file; i++) {
-//			  DATA_GCODE[i] = tTool.VCP_Config.VCP_data[i + 2];
-//		  }
-//		  StartGCodeStorage((unsigned char*)&DATA_GCODE);
-//		  memset(&tTool.VCP_Config.VCP_data[0], '\0', sizeof(tTool.VCP_Config.VCP_data));
-//		  tTool.VCP_Config.VCP_command_IsReceived = false;
-//
-//		  HAL_UART_Transmit_IT(&huart1, (uint8_t*)"OK", 2);
-//	  }
-
-
-
-
-
-
-//	  HAL_Delay(500);
-//	  LED_FREE_OP_TGL;
+	  HAL_Delay(500);
+	  LED_FREE_OP_TGL;
 
 
 

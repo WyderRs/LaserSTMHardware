@@ -220,7 +220,7 @@
 #define 				MAX_FEEDRATE	12.5f		// mm/s
 /*******************/
 /* Programm parameters */
-#define					MODE_G0_FEEDRATE	10.0f	// mm/s
+#define					MODE_G0_FEEDRATE	200.0f	// mm/min
 
 /*******************/
 typedef enum feedrate_type_t {
@@ -299,12 +299,29 @@ typedef struct ToolHead_Typedef {
 	float 	Feed;
 
 } ToolHead_Typedef;
+typedef enum VCP_State_t {
+	Disconnect 	= 0,
+	Connect 	= 1,
+} VCP_State_t;
+typedef struct VCP_Config_t {
+	VCP_State_t State;				// USB_State
+	uint8_t 	data[1000][50];		// Received data
+	uint8_t 	Data_one_byte;		// Received last byte
+	uint16_t 	data_counter;		// Received data count
+	uint16_t	line_temp;			// Line counter
+
+	uint16_t 	line_count;			// Last numver of line
+	_Bool		command_IsReceived; // Command received notification
+
+} VCP_Config_t;
 typedef struct Tool_Typedef {
 	GMode_t 			GMode;
 	ToolHead_Typedef 	head;
 	Encoder_t			Encoder;
 	ToolLaser_Typedef	laser;
 	ToolCuller_Typedef	culler;
+
+	VCP_Config_t		VCP;
 
 
 	float 			trg_pos[3];
@@ -321,14 +338,15 @@ void tToolAxisEN(tAxis_t *ax, state_en_t st); 			/* Set state axis */
 void tToolAxisWork(tAxis_t *ax, state_en_t st);			/* Axis moving is started or stoped*/
 void tToolAxisDiraction(tAxis_t *ax, side_t side);		/* Set direction for axis */
 void tToolFeedrateType(feedrate_type_t ftt);			/* Type of feedrate */
-void tToolFeedrate(float feedrate); 	/* Set feedrate */
+void tToolSetGMode(GMode_t gm);							/* Set g-code Mode */
+void tToolFeedrate(float feedrate); 					/* Set feedrate */
 void tHome(void);										/* Go home 		*/
 void tMode(GMode_t gm);									/* Enter g-mode */
 void tMove(float x, float y, float z);					/* Move to target position from the current position */
 
 
 void tToolPerformTimerEN(state_en_t st);				/* Timer to perform */
-
+VCP_State_t tVCP_Check();								/* Checking VCP connection */
 
 
 

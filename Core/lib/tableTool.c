@@ -362,12 +362,7 @@ extern TIM_HandleTypeDef htim3;
 //
 //
 
-//void tVCP_Command(uint32_t bytes) {
-//
-//	tTool.VCP_Config.VCP_command_IsReceived = true;
-//	tTool.VCP_Config.VCP_cnt_last_file = bytes;
-//
-//}
+
 //===============================================================================================//
 // CALLBACKS
 //===============================================================================================//
@@ -406,20 +401,25 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin) {
 //	}
 
 }
-//void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart) {
-//
-//	if (huart == &huart1) {
-//
-//		tTool.VCP_Config.VCP_data[tTool.VCP_Config.VCP_Data_counter] = tTool.VCP_Config.VCP_Data_one_byte;
-//		tTool.VCP_Config.VCP_Data_counter++;
-//
-//		if (tTool.VCP_Config.VCP_Data_counter == (((tTool.VCP_Config.VCP_data[0] << 8) | (tTool.VCP_Config.VCP_data[1] << 0)) + 1)) {
-//			tVCP_Command(tTool.VCP_Config.VCP_Data_counter);
-//			tTool.VCP_Config.VCP_Data_counter = 0;
-//		}
-//	}
-//
-//}
+void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart) {
+	if (huart == &huart1) {
+		if (tTool.VCP.Data_one_byte == 0xEF) {
+			tTool.VCP.line_count	= tTool.VCP.line_temp;
+			tTool.VCP.line_temp 	= 0;
+			tTool.VCP.data_counter 	= 0;
+			tTool.VCP.command_IsReceived = true;
+		}
+		else if ((tTool.VCP.data_counter >= (tTool.VCP.data[tTool.VCP.line_temp][0])) && (tTool.VCP.data_counter != 0)) {
+			tTool.VCP.data[tTool.VCP.line_temp][tTool.VCP.data_counter] = tTool.VCP.Data_one_byte;
+			tTool.VCP.data_counter 	= 0;
+			tTool.VCP.line_temp++;
+		}
+		else {
+			tTool.VCP.data[tTool.VCP.line_temp][tTool.VCP.data_counter] = tTool.VCP.Data_one_byte;
+			tTool.VCP.data_counter++;
+		}
+	}
+}
 void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim) {
 
 	if (htim->Instance == TIM3) {
@@ -566,19 +566,28 @@ void tInit(void) {
 	LED_ERR_OP_OFF;
 
 
+
+	tTool.GMode = _G1_mode;
 	tToolFeedrateType(ftt_mm_min);
-//	tToolFeedrateType(ftt_mm_sec);
-	tToolFeedrate(6);
-	tMove(1.0, 0, 0);
+	tToolFeedrate(100);
 
+//	tHome();
 
+	tTool.VCP.State = tVCP_Check();
 
+	if (tTool.VCP.State) {
+		HAL_UART_Receive_DMA(&huart1, (uint8_t*)&tTool.VCP.Data_one_byte, 1);
+	}
 
-//	tMove(1, 5, 10);
-//	tMove(1.5, 5, 10);
-//	tMove(0.5, 5, 10);
+	while(1) {
+		if (tTool.VCP.command_IsReceived) {
+			__NOP();
+			StartGCodeStorage(tTool.VCP.data, tTool.VCP.line_count);
+			tTool.VCP.command_IsReceived = false;
+		}
+	}
 
-//	tToolFeedrate(0.1);
+	while(1) {}
 
 //	tMove(4.3538, -0.5502, 10);
 //	tMove(4.3705, -0.5728, 10);
@@ -723,11 +732,6 @@ void tInit(void) {
 //	tMove(-4.3538, -0.5502, 10);
 
 
-
-
-
-
-
 //	tHome();
 //	tTool.VCP_Config.VCP_State = tVCP_Check();
 
@@ -760,12 +764,17 @@ void tToolAxisWork(tAxis_t *ax, state_en_t st) {
 void tToolAxisDiraction(tAxis_t *ax, side_t side) {
 	HAL_GPIO_WritePin(ax->port_dir, ax->pin_dir, side);
 }
+void tToolSetGMode(GMode_t gm) {
+	tTool.GMode = gm;
+}
 void tToolFeedrateType(feedrate_type_t ftt) {
 	tTool.ftt = ftt;
 }
 void tToolFeedrate(float feedrate) {
-	/* Finding freq */
 
+	tTool.head.Feed = feedrate;
+
+	/* Finding freq */
 	if (tTool.ftt == ftt_mm_min) {			// at 60 sec
 		feedrate = feedrate / 60.0;
 	}
@@ -792,10 +801,9 @@ void tToolFeedrate(float feedrate) {
 
 /* Go home */
 void tHome(void) {
-	tTool.GMode 					= _G0_mode;
-	tToolFeedrateType(ftt_mm_sec);
-	tToolFeedrate(3);
-	tTool.head.tAxis[2].timer->Instance->CCR2 = 50;
+	tTool.GMode 					= _G1_mode;
+	tToolFeedrateType(ftt_mm_min);
+	tToolFeedrate(50);
 
 	for (int8_t i = 2; i >= 0; i--) {
 		tToolAxisDiraction(&tTool.head.tAxis[i], Forward);
@@ -883,7 +891,7 @@ void tMoveDirect(float x, float y, float z) {
 void tMove(float x, float y, float z) {
 
 	if (tTool.GMode == _G0_mode) {
-//		tToolFeedrate(MODE_G0_FEEDRATE);
+		tToolFeedrate(MODE_G0_FEEDRATE);
 
 		float x0 = tTool.curr_pos[0];
 		float y0 = tTool.curr_pos[1];
@@ -998,17 +1006,124 @@ void tMove(float x, float y, float z) {
 
 	} else if (tTool.GMode == _G1_mode) {
 		tToolFeedrate(tTool.head.Feed);
+
+		float x0 = tTool.curr_pos[0];
+		float y0 = tTool.curr_pos[1];
+		float z0 = tTool.curr_pos[2];
+
+		// Абсолютные разницы
+		float dx = fabs(x - x0);
+		float dy = fabs(y - y0);
+		float dz = fabs(z - z0);
+		// Направления
+		float sx = (x > x0) ? ACCURACY : ((x < x0) ? -ACCURACY : 0);
+		float sy = (y > y0) ? ACCURACY : ((y < y0) ? -ACCURACY : 0);
+		float sz = (z > z0) ? ACCURACY : ((z < z0) ? -ACCURACY : 0);
+	    // Ошибки
+		float err_x = 0.0f;
+	    float err_y = 0.0f;
+	    float err_z = 0.0f;
+	    float d_err_x;
+	    float d_err_y;
+	    float d_err_z;
+	    // Текущие координаты
+	    float tx = x0, ty = y0, tz = z0;
+	    /***************************************/
+		tToolAxisEN(&tTool.head.tAxis[0], ON);
+		tToolAxisEN(&tTool.head.tAxis[1], ON);
+		tToolAxisEN(&tTool.head.tAxis[2], ON);
+	    /***************************************/
+	    /* Ведущая X */
+	    if ((dx >= dy) && (dx >= dz)) {
+	    	d_err_y = (dy + ACCURACY) / (dx + ACCURACY);
+	    	d_err_z = (dz + ACCURACY) / (dx + ACCURACY);
+	    	d_err_y = d_err_y * ACCURACY;
+	    	d_err_z = d_err_z * ACCURACY;
+	    	for (;;) {
+	    		tMoveDirect(tx, ty, tz);
+	    		/* Поиграться с положением этой строки -> */
+	    		if (((x - ACCURACY) < tx) && ((x + ACCURACY) > tx)) break;
+	    		tx += sx;
+
+	    		err_y += d_err_y;
+	    		while (err_y >= ACCURACY) {
+	    			ty += sy;
+	    			err_y -= ACCURACY;
+	    		}
+	    		err_z += d_err_z;
+	    		while (err_z >= ACCURACY) {
+	    			tz += sz;
+	    			err_z -= ACCURACY;
+	    		}
+	    	}
+	    }
+	    /* Ведущая Y */
+	    else if ((dy >= dx) && (dy >= dz)) {
+	    	d_err_x = (dx + ACCURACY) / (dy + ACCURACY);
+	    	d_err_z = (dz + ACCURACY) / (dy + ACCURACY);
+	    	d_err_x = d_err_x * ACCURACY;
+	    	d_err_z = d_err_z * ACCURACY;
+	    	for (;;) {
+	    		tMoveDirect(tx, ty, tz);
+	    		/* Поиграться с положением этой строки -> */
+	    		if (((y - ACCURACY) < ty) && ((y + ACCURACY) > ty)) break;
+	    		ty += sy;
+
+	    		err_x += d_err_x;
+	    		while (err_x >= ACCURACY) {
+	    			tx += sy;
+	    			err_x -= ACCURACY;
+	    		}
+	    		err_z += d_err_z;
+	    		while (err_z >= ACCURACY) {
+	    			tz += sz;
+	    			err_z -= ACCURACY;
+	    		}
+	    	}
+	    }
+	    /* Ведущая Z */
+	    else if ((dz >= dx) && (dz >= dx)) {
+	    	d_err_x = (dx + ACCURACY) / (dz + ACCURACY);
+	    	d_err_y = (dy + ACCURACY) / (dz + ACCURACY);
+	    	d_err_x = d_err_x * ACCURACY;
+	    	d_err_y = d_err_y * ACCURACY;
+	    	for (;;) {
+	    		tMoveDirect(tx, ty, tz);
+	    		/* Поиграться с положением этой строки -> */
+	    		if (((z - ACCURACY) < tz) && ((z + ACCURACY) > tz)) break;
+	    		tz += sz;
+
+	    		err_x += d_err_x;
+	    		while (err_x >= ACCURACY) {
+	    			tx += sx;
+	    			err_x -= ACCURACY;
+	    		}
+	    		err_y += d_err_y;
+	    		while (err_y >= ACCURACY) {
+	    			ty += sy;
+	    			err_y -= ACCURACY;
+	    		}
+	    	}
+	    }
+
+	    /***************************************/
+	    tToolAxisWork(&tTool.head.tAxis[0], OFF);
+	    tToolAxisWork(&tTool.head.tAxis[1], OFF);
+		tToolAxisWork(&tTool.head.tAxis[2], OFF);
+		tToolAxisEN(&tTool.head.tAxis[0], OFF);
+		tToolAxisEN(&tTool.head.tAxis[1], OFF);
+		tToolAxisEN(&tTool.head.tAxis[2], OFF);
+	    /***************************************/
+
 	} else if (tTool.GMode == _G2_mode) {
-
+		__NOP();
 	} else if (tTool.GMode == _G3_mode) {
-
+		__NOP();
 	}
-
-
-
-
 }
-
+VCP_State_t tVCP_Check(void) {
+	return (VCP_State_t)HAL_GPIO_ReadPin(VP_ENABLE_PORT, VP_ENABLE_PIN);
+}
 
 
 

@@ -1,3 +1,3 @@
 ../Core/lib/FuncG.c:18:6:StartGCodeSD	4
-../Core/lib/FuncG.c:53:6:StartGCodeStorage	4
-../Core/lib/FuncG.c:80:6:G_CommandString	156
+../Core/lib/FuncG.c:51:6:StartGCodeStorage	2
+../Core/lib/FuncG.c:60:6:G_CommandString	114

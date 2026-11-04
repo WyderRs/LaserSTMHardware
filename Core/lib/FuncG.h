@@ -21,7 +21,7 @@
 
 
 void StartGCodeSD(const TCHAR* path);
-void StartGCodeStorage(unsigned char* data_storage);
+void StartGCodeStorage(uint8_t data_storage[][50], uint16_t lines_cnt);
 void G_CommandString(unsigned char* g_ch);
 
 

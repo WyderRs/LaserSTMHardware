@@ -35,8 +35,7 @@
 //} Common_param_t;
 
 typedef enum GC_Axis {
-	GC_ALL_AXISES = 0,
-	GC_X_AXIS,
+	GC_X_AXIS = 0,
 	GC_Y_AXIS,
 	GC_Z_AXIS,
 } GC_Axis;
@@ -65,8 +64,8 @@ typedef enum GC_Axis {
 void GC_G28(GC_Axis);
 
 /* Go to mode G0, G1, G2, G3 */
-void GC_G0 (float GX, float GY, float GZ);
-void GC_G1 (float GX, float GY, float GZ);
+void GC_G0 (void);
+void GC_G1 (void);
 void GC_G2(float x1, float y1, float r);
 void GC_G3(float x1, float y1, float r);
 
@@ -78,12 +77,14 @@ void GC_M30(void);
 void GC_S (float s);
 void GC_F (float s);
 
+//void GC_Move(float GX, float GY, float GZ);
 
+void GC_X(float x);
+void GC_Y(float y);
+void GC_Z(float z);
 
-
-
-
-
+/**********************************/
+void GC_LinePerformMove(void);
 
 
 
