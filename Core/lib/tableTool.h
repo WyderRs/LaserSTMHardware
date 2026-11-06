@@ -212,7 +212,7 @@
 #define 				BASE_PSC		72			// const
 #define 				MAX_Frequency	10000 		// Hz
 #define 				MIN_Frequency	1 			// Hz
-#define					ACCURACY		0.00125f 	// mm
+#define					ACCURACY		0.00250f 	// mm
 #define					SCREW_STEP 		4.0f		// mm
 #define					MOTOR_STEP 		1.8f		// mm
 #define 				DRIVER_DEVIDER	16			// const
@@ -259,6 +259,14 @@ typedef struct ToolCuller_Typedef {
 	GPIO_TypeDef	*port;			// port
 	uint32_t 		pin;			// pin
 } ToolCuller_Typedef;
+typedef enum enc_mode_t {
+	ENC_Auto = 0,
+	ENC_HAND,
+	ENC_NONE,
+	ENC_X,
+	ENC_Y,
+	ENC_Z,
+} enc_mode_t;
 typedef struct Encoder_t {
 	GPIO_TypeDef		*port1;					// port1
 	uint32_t 			pin1;					// pin1
@@ -271,6 +279,12 @@ typedef struct Encoder_t {
 
 	uint16_t 			count_last_rotate; 		// Last count of pulses
 	side_t 				current_rotate_side; 	// It for indicate side of rotate
+
+
+	uint32_t 			md_ct[6];				// Current count for transition on mode (this parameter for each mode
+	uint32_t 			md_sct;					// Start count for transition on mode
+	enc_mode_t			mode;					// work mode for encoder
+	_Bool 				ButtonHasPressed;		// Button has pressed (before)
 } Encoder_t;
 typedef struct tAxis_t {
 	GPIO_TypeDef		*port_dir;			// dir_port
@@ -326,6 +340,7 @@ typedef struct Tool_Typedef {
 
 	float 			trg_pos[3];
 	float 			curr_pos[3];
+	float			origin_pos[3];
 	state_en_t 		ax_st[3];
 	feedrate_type_t	ftt;
 
@@ -342,12 +357,12 @@ void tToolSetGMode(GMode_t gm);							/* Set g-code Mode */
 void tToolFeedrate(float feedrate); 					/* Set feedrate */
 void tHome(void);										/* Go home 		*/
 void tMode(GMode_t gm);									/* Enter g-mode */
-void tMove(float x, float y, float z);					/* Move to target position from the current position */
+void tToolMove(float x, float y, float z);					/* Move to target position from the current position */
 
 
 void tToolPerformTimerEN(state_en_t st);				/* Timer to perform */
-VCP_State_t tVCP_Check();								/* Checking VCP connection */
-
+VCP_State_t tVCP_Check(void);								/* Checking VCP connection */
+void tToolSetOrigin(void);								/* Set current position is a origin position */
 
 
 

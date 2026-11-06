@@ -24,471 +24,6 @@ extern TIM_HandleTypeDef htim3;
 
 
 
-//char LCD_Buffer[20];
-
-//void tInit(void) {
-//	tTool.state 					= tNoInit;
-//	/* Axis X */
-//	tTool.head.tAxis[0].port_dir 	= GPIOC;
-//	tTool.head.tAxis[0].pin_dir 	= GPIO_PIN_8;
-//	tTool.head.tAxis[0].port_en 	= GPIOA;
-//	tTool.head.tAxis[0].pin_en 		= GPIO_PIN_8;
-//	tTool.head.tAxis[0].port_pulse 	= GPIOC;
-//	tTool.head.tAxis[0].pin_pulse 	= GPIO_PIN_9;
-//	tTool.head.tAxis[0].port_SW		= GPIOC;
-//	tTool.head.tAxis[0].pin_SW		= GPIO_PIN_12;
-//	tTool.head.tAxis[0].state_SW	= false;
-//	/* Axis Y */
-//	tTool.head.tAxis[1].port_dir 	= GPIOB;
-//	tTool.head.tAxis[1].pin_dir 	= GPIO_PIN_15;
-//	tTool.head.tAxis[1].port_en 	= GPIOC;
-//	tTool.head.tAxis[1].pin_en 		= GPIO_PIN_7;
-//	tTool.head.tAxis[1].port_pulse 	= GPIOC;
-//	tTool.head.tAxis[1].pin_pulse 	= GPIO_PIN_6;
-//	tTool.head.tAxis[1].port_SW		= GPIOD;
-//	tTool.head.tAxis[1].pin_SW		= GPIO_PIN_2;
-//	tTool.head.tAxis[1].state_SW	= false;
-//	/* Axis Z */
-//	tTool.head.tAxis[2].port_dir 	= GPIOB;
-//	tTool.head.tAxis[2].pin_dir 	= GPIO_PIN_12;
-//	tTool.head.tAxis[2].port_en 	= GPIOB;
-//	tTool.head.tAxis[2].pin_en 		= GPIO_PIN_14;
-//	tTool.head.tAxis[2].port_pulse 	= GPIOB;
-//	tTool.head.tAxis[2].pin_pulse 	= GPIO_PIN_13;
-//	tTool.head.tAxis[2].port_SW		= GPIOB;
-//	tTool.head.tAxis[2].pin_SW		= GPIO_PIN_3;
-//	tTool.head.tAxis[2].state_SW	= false;
-//	/* Encoder */
-//	tTool.Encoder.port1				= GPIOB;
-//	tTool.Encoder.pin1				= GPIO_PIN_5;
-//	tTool.Encoder.port2				= GPIOB;
-//	tTool.Encoder.pin2				= GPIO_PIN_4;
-//	tTool.Encoder.Button_port		= GPIOB;
-//	tTool.Encoder.Button_pin		= GPIO_PIN_8;
-//	tTool.Encoder.current_rotate_side = Forward;
-//	tTool.Encoder.count_last_rotate = 0;
-//	tTool.Encoder.Button_state 		= false;
-//
-//	/* Laser */
-//	tTool.laser.port				= GPIOB;
-//	tTool.laser.pin					= GPIO_PIN_9;
-//	/* Culler */
-//	tTool.culler.port				= GPIOC;
-//	tTool.culler.pin				= GPIO_PIN_11;
-//
-//	/* x = [8(step line screw) * 1.8(step motor step)] / [360 * 16(step divider on driver)] = 0.0025mm */
-//	tTool.Settings.stpLineValue			= (8.0 * 1.8) / (360.0 * DRV_DIVIDER);
-//
-//	/* First definition */
-//	tAxisEN(&tTool.head.tAxis[0], OFF, OFF);
-//	tAxisEN(&tTool.head.tAxis[1], OFF, OFF);
-//	tAxisEN(&tTool.head.tAxis[2], OFF, OFF);
-//	tLaserEN(OFF);
-//	tTool.VCP_Config.VCP_State = tVCP_Check();
-//
-//	tToolSetState(tReady);
-//	HAL_TIM_Base_Start_IT(&htim11);
-//	/************************************************************************/
-//
-//
-////	HAL_UART_Receive_IT(&huart1, tTool.VCP_Config.VCP_data, 20);
-//	HAL_UART_Receive_DMA(&huart1, (uint8_t*)&tTool.VCP_Config.VCP_Data_one_byte, 1);
-//}
-
-//void tHome(void) {
-//	tToolSetState(tReady);
-//	tMoveSetSpeed(8);
-//
-//	tAxisEN(&tTool.head.tAxis[0], OFF, ON);
-//	tAxisEN(&tTool.head.tAxis[1], OFF, ON);
-//	tAxisEN(&tTool.head.tAxis[2], OFF, ON);
-//
-//	for (uint8_t i = 2; i <= 2; i--) {
-//		tDriverSetDir(&tTool.head.tAxis[i], BackForward);
-//		tAxisEN(&tTool.head.tAxis[i], ON, ON);
-//		while(!tTool.head.tAxis[i].state_SW) {}
-//		tDriverSetDir(&tTool.head.tAxis[i], Forward);
-//		while(tTool.head.tAxis[i].state_SW) {}
-//		tAxisEN(&tTool.head.tAxis[i], OFF, ON);
-//	}
-//
-//	tAxisEN(&tTool.head.tAxis[0], OFF, OFF);
-//	tAxisEN(&tTool.head.tAxis[1], OFF, OFF);
-//	tAxisEN(&tTool.head.tAxis[2], OFF, OFF);
-//
-//	tMove_SetOrigin();
-//}
-//void tHomeAxis(tAxis_t *ax) {
-//	tToolSetState(tReady);
-//	tMoveSetSpeed(8);
-//
-//	tAxisEN(ax, OFF, ON);
-//
-//	tDriverSetDir(ax, BackForward);
-//	tAxisEN(ax, ON, ON);
-//	while(!ax->state_SW) {}
-//	tDriverSetDir(ax, Forward);
-//	while(ax->state_SW) {}
-//
-//	tAxisEN(ax, OFF, OFF);
-//
-//	tMove_SetOrigin();
-//}
-//
-//void tMove_SetOrigin(void) {
-//	tTool.head.tAxis[0].current_pos_coord = 0;
-//	tTool.head.tAxis[1].current_pos_coord = 0;
-//	tTool.head.tAxis[2].current_pos_coord = 0;
-//	tTool.head.tAxis[0].current_cnt = 0;
-//	tTool.head.tAxis[1].current_cnt = 0;
-//	tTool.head.tAxis[2].current_cnt = 0;
-//
-//}
-//void tMoveRelative_A(float x, float y, float z) {	// (A)uto, not holding down the program
-//	if (x < 0) {
-//		tDriverSetDir(&tTool.head.tAxis[0], BackForward);
-//	}
-//	else if (x > 0) {
-//		tDriverSetDir(&tTool.head.tAxis[0], Forward);
-//	}
-//	if (y < 0) {
-//		tDriverSetDir(&tTool.head.tAxis[1], BackForward);
-//	}
-//	else if (y > 0) {
-//		tDriverSetDir(&tTool.head.tAxis[1], Forward);
-//	}
-//	if (z < 0) {
-//		tDriverSetDir(&tTool.head.tAxis[2], BackForward);
-//	}
-//	else if (z > 0) {
-//		tDriverSetDir(&tTool.head.tAxis[2], Forward);
-//	}
-//
-//
-//	if (x == 0) tAxisEN(&tTool.head.tAxis[0], OFF, OFF); else tAxisEN(&tTool.head.tAxis[0], ON, ON);
-//	if (y == 0) tAxisEN(&tTool.head.tAxis[1], OFF, OFF); else tAxisEN(&tTool.head.tAxis[1], ON, ON);
-//	if (z == 0) tAxisEN(&tTool.head.tAxis[2], OFF, OFF); else tAxisEN(&tTool.head.tAxis[2], ON, ON);
-//
-//	LED_AUTO_OP_ON;
-//	tTool.state = tAutoMove;
-//}
-//void tMoveRelative(float dx, float dy, float dz) {
-//
-//	tToolSetState(tBusy);
-//
-//	if (dx < 0) tDriverSetDir(&tTool.head.tAxis[0], BackForward);
-//	else if (dx > 0) tDriverSetDir(&tTool.head.tAxis[0], Forward);
-//
-//	if (dy < 0) tDriverSetDir(&tTool.head.tAxis[1], BackForward);
-//	else if (dy > 0)tDriverSetDir(&tTool.head.tAxis[1], Forward);
-//
-//	if (dz < 0) tDriverSetDir(&tTool.head.tAxis[2], BackForward);
-//	else if (dz > 0) tDriverSetDir(&tTool.head.tAxis[2], Forward);
-//
-//	tTool.head.tAxis[0].target_pos_coord = tTool.head.tAxis[0].current_pos_coord + dx;
-//	tTool.head.tAxis[1].target_pos_coord = tTool.head.tAxis[1].current_pos_coord + dy;
-//	tTool.head.tAxis[2].target_pos_coord = tTool.head.tAxis[2].current_pos_coord + dz;
-//
-//	dx = fabs(tTool.head.tAxis[0].current_pos_coord - tTool.head.tAxis[0].target_pos_coord);
-//	dy = fabs(tTool.head.tAxis[1].current_pos_coord - tTool.head.tAxis[1].target_pos_coord);
-//	dz = fabs(tTool.head.tAxis[2].current_pos_coord - tTool.head.tAxis[2].target_pos_coord);
-//
-//	float c = sqrt(dx * dx + dy * dy + dz * dz);
-//
-//	float xk = fabs(dx / c);
-//	float yk = fabs(dy / c);
-//	float zk = fabs(dz / c);
-//
-//	tMoveAdjustmentSpeed(&tTool.head.tAxis[0], xk * tTool.head.tAxis[0].installed_speed_mm);
-//	tMoveAdjustmentSpeed(&tTool.head.tAxis[1], yk * tTool.head.tAxis[1].installed_speed_mm);
-//	tMoveAdjustmentSpeed(&tTool.head.tAxis[2], zk * tTool.head.tAxis[2].installed_speed_mm);
-//
-//
-//	if (((0 + tTool.Settings.stpLineValue) > dx) && ((0 - tTool.Settings.stpLineValue) < dx)) {
-//		tAxisEN(&tTool.head.tAxis[0], OFF, ON);
-//	}
-//	else {
-//		tTool.head.tAxis[0].task_state = Progress;
-//		tAxisEN(&tTool.head.tAxis[0], ON, ON);
-//	}
-//	if (((0 + tTool.Settings.stpLineValue) > dy) && ((0 - tTool.Settings.stpLineValue) < dy)) {
-//		tAxisEN(&tTool.head.tAxis[1], OFF, ON);
-//	}
-//	else {
-//		tTool.head.tAxis[1].task_state = Progress;
-//		tAxisEN(&tTool.head.tAxis[1], ON, ON);
-//	}
-//	if (((0 + tTool.Settings.stpLineValue) > dz) && ((0 - tTool.Settings.stpLineValue) < dz)) {
-//		tAxisEN(&tTool.head.tAxis[2], OFF, ON);
-//	}
-//	else {
-//		tTool.head.tAxis[2].task_state = Progress;
-//		tAxisEN(&tTool.head.tAxis[2], ON, ON);
-//	}
-//
-//	tToolSetState(tReady);
-//	_Bool flag[3] = {false,};
-//	while(!((flag[0]) && (flag[1]) && (flag[2]))) {
-//
-//		if (tTool.head.tAxis[0].task_state == Ended) {
-//			flag[0] = true;
-//		}
-//		if (tTool.head.tAxis[1].task_state == Ended) {
-//			flag[1] = true;
-//		}
-//		if (tTool.head.tAxis[2].task_state == Ended) {
-//			flag[2] = true;
-//		}
-//	}
-//
-//	tAxisEN(&tTool.head.tAxis[0], OFF, OFF);
-//	tAxisEN(&tTool.head.tAxis[1], OFF, OFF);
-//	tAxisEN(&tTool.head.tAxis[2], OFF, OFF);
-//}
-//void tMoveGlobal(float x, float y, float z) {
-//
-//	tToolSetState(tBusy);
-//
-//	if (x < tTool.head.tAxis[0].current_pos_coord) tDriverSetDir(&tTool.head.tAxis[0], BackForward);
-//	else if (x > tTool.head.tAxis[0].current_pos_coord) tDriverSetDir(&tTool.head.tAxis[0], Forward);
-//
-//	if (y < tTool.head.tAxis[1].current_pos_coord) tDriverSetDir(&tTool.head.tAxis[1], BackForward);
-//	else if (y > tTool.head.tAxis[1].current_pos_coord)tDriverSetDir(&tTool.head.tAxis[1], Forward);
-//
-//	if (z < tTool.head.tAxis[2].current_pos_coord) tDriverSetDir(&tTool.head.tAxis[2], BackForward);
-//	else if (z > tTool.head.tAxis[2].current_pos_coord) tDriverSetDir(&tTool.head.tAxis[2], Forward);
-//
-//	tTool.head.tAxis[0].target_pos_coord = x;
-//	tTool.head.tAxis[1].target_pos_coord = y;
-//	tTool.head.tAxis[2].target_pos_coord = z;
-//
-//	float dx = fabs(tTool.head.tAxis[0].current_pos_coord - tTool.head.tAxis[0].target_pos_coord);
-//	float dy = fabs(tTool.head.tAxis[1].current_pos_coord - tTool.head.tAxis[1].target_pos_coord);
-//	float dz = fabs(tTool.head.tAxis[2].current_pos_coord - tTool.head.tAxis[2].target_pos_coord);
-//
-//	float c = sqrt(dx * dx + dy * dy + dz * dz);
-//
-//	float xk = fabs(dx / c);
-//	float yk = fabs(dy / c);
-//	float zk = fabs(dz / c);
-//
-//	tMoveAdjustmentSpeed(&tTool.head.tAxis[0], xk * tTool.head.tAxis[0].installed_speed_mm);
-//	tMoveAdjustmentSpeed(&tTool.head.tAxis[1], yk * tTool.head.tAxis[1].installed_speed_mm);
-//	tMoveAdjustmentSpeed(&tTool.head.tAxis[2], zk * tTool.head.tAxis[2].installed_speed_mm);
-//
-//
-//	if (((0 + tTool.Settings.stpLineValue) > dx) && ((0 - tTool.Settings.stpLineValue) < dx)) {
-//		tAxisEN(&tTool.head.tAxis[0], OFF, ON);
-//	}
-//	else {
-//		tTool.head.tAxis[0].task_state = Progress;
-//		tAxisEN(&tTool.head.tAxis[0], ON, ON);
-//	}
-//	if (((0 + tTool.Settings.stpLineValue) > dy) && ((0 - tTool.Settings.stpLineValue) < dy)) {
-//		tAxisEN(&tTool.head.tAxis[1], OFF, ON);
-//	}
-//	else {
-//		tTool.head.tAxis[1].task_state = Progress;
-//		tAxisEN(&tTool.head.tAxis[1], ON, ON);
-//	}
-//	if (((0 + tTool.Settings.stpLineValue) > dz) && ((0 - tTool.Settings.stpLineValue) < dz)) {
-//		tAxisEN(&tTool.head.tAxis[2], OFF, ON);
-//	}
-//	else {
-//		tTool.head.tAxis[2].task_state = Progress;
-//		tAxisEN(&tTool.head.tAxis[2], ON, ON);
-//	}
-//
-//	tToolSetState(tReady);
-//	_Bool flag[3] = {false,};
-//	while(!((flag[0]) && (flag[1]) && (flag[2]))) {
-//
-//		if ((tTool.head.tAxis[0].task_state == Ended) || (tTool.head.tAxis[0].task_state == noUse)) {
-//			flag[0] = true;
-//		}
-//		if ((tTool.head.tAxis[1].task_state == Ended) || (tTool.head.tAxis[1].task_state == noUse)) {
-//			flag[1] = true;
-//		}
-//		if ((tTool.head.tAxis[2].task_state == Ended) || (tTool.head.tAxis[2].task_state == noUse)) {
-//			flag[2] = true;
-//		}
-//	}
-//
-//	tAxisEN(&tTool.head.tAxis[0], OFF, OFF);
-//	tAxisEN(&tTool.head.tAxis[1], OFF, OFF);
-//	tAxisEN(&tTool.head.tAxis[2], OFF, OFF);
-//}
-//void tMoveAdjustmentSpeed(tAxis_t* ax, float sp) {
-//	uint32_t number_pulses = (float)(1.0 / (4.0 * sp * tTool.Settings.stpLineValue));
-//	ax->tgl = number_pulses;
-//}
-//void tMoveSetSpeed(float sp) {
-//	// e.g.: 1mm / 2.0 * 2.0 * step = number pulses (2.0 because TogglePin), (2.0 because TogglePin for mm)
-//	// 1 mm = 25p => toggle => 1mm == 50p,
-//	uint32_t number_pulses = (float)(1.0 / (4 * sp * tTool.Settings.stpLineValue));
-//	tTool.head.tAxis[0].tgl = number_pulses;
-//	tTool.head.tAxis[1].tgl = number_pulses;
-//	tTool.head.tAxis[2].tgl = number_pulses;
-//
-//	tTool.head.tAxis[0].installed_speed_mm = sp;
-//	tTool.head.tAxis[1].installed_speed_mm = sp;
-//	tTool.head.tAxis[2].installed_speed_mm = sp;
-//	tTool.Settings.speed = sp;
-//}
-//void tToolSetState(state_work_t st) {
-//	tTool.state = st;
-//}
-//void tAxisEN(tAxis_t *ax, state_en_t st, state_en_t stateDrv) {
-//	HAL_GPIO_WritePin(ax->port_en, ax->pin_en, !stateDrv);
-//	ax->enable = st;
-//}
-//void tDriverSetDir(tAxis_t *ax, side_t sd) {
-//	HAL_GPIO_WritePin(ax->port_dir, ax->pin_dir, sd);
-//	ax->direction = sd;
-//}
-//void tLaserEN(state_en_t st) {
-//	HAL_GPIO_WritePin(tTool.laser.port, tTool.laser.pin, st);
-//}
-//
-//VCP_State_t tVCP_Check(void) {
-//	return (VCP_State_t)HAL_GPIO_ReadPin(VP_ENABLE_PORT, VP_ENABLE_PIN);
-//}
-//void tGSetMode(GCode_Mode_t mode) {
-//
-//	tTool.GCode_Status = mode;
-//	return;
-//}
-//
-//
-//
-
-
-//===============================================================================================//
-// CALLBACKS
-//===============================================================================================//
-void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin) {
-	if (GPIO_Pin == tTool.head.tAxis[0].pin_SW) {		// X
-		if (tTool.head.tAxis[0].port_SW->IDR & tTool.head.tAxis[0].pin_SW) tTool.head.tAxis[0].state_SW = false;
-		else if(!(tTool.head.tAxis[0].port_SW->IDR & tTool.head.tAxis[0].pin_SW)) tTool.head.tAxis[0].state_SW = true;
-	}
-	else if (GPIO_Pin == tTool.head.tAxis[1].pin_SW) {	// Y
-		if (tTool.head.tAxis[1].port_SW->IDR & tTool.head.tAxis[1].pin_SW) tTool.head.tAxis[1].state_SW = false;
-		else if(!(tTool.head.tAxis[1].port_SW->IDR & tTool.head.tAxis[1].pin_SW)) tTool.head.tAxis[1].state_SW = true;
-	}
-	else if (GPIO_Pin == tTool.head.tAxis[2].pin_SW) {	// Z
-		if (tTool.head.tAxis[2].port_SW->IDR & tTool.head.tAxis[2].pin_SW) tTool.head.tAxis[2].state_SW = false;
-		else if(!(tTool.head.tAxis[2].port_SW->IDR & tTool.head.tAxis[2].pin_SW)) tTool.head.tAxis[2].state_SW = true;
-	}
-
-//	else if (GPIO_Pin == tTool.Encoder.pin1) {
-//		if (HAL_GPIO_ReadPin(GPIOB, GPIO_PIN_4) == GPIO_PIN_RESET) {
-//			if (tTool.Encoder.current_rotate_side == Forward) {
-//				tTool.Encoder.current_rotate_side = BackForward;
-//				tTool.Encoder.count_last_rotate = 0;
-//			}
-//			tTool.Encoder.count_last_rotate++;
-//		}
-//		else {
-//			if (tTool.Encoder.current_rotate_side == BackForward) {
-//				tTool.Encoder.current_rotate_side = Forward;
-//				tTool.Encoder.count_last_rotate = 0;
-//			}
-//			tTool.Encoder.count_last_rotate++;
-//		}
-//	}
-//	else if (GPIO_Pin == tTool.Encoder.Button_pin) {
-//		tTool.Encoder.Button_state = true;
-//	}
-
-}
-void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart) {
-	if (huart == &huart1) {
-		if (tTool.VCP.Data_one_byte == 0xEF) {
-			tTool.VCP.line_count	= tTool.VCP.line_temp;
-			tTool.VCP.line_temp 	= 0;
-			tTool.VCP.data_counter 	= 0;
-			tTool.VCP.command_IsReceived = true;
-		}
-		else if ((tTool.VCP.data_counter >= (tTool.VCP.data[tTool.VCP.line_temp][0])) && (tTool.VCP.data_counter != 0)) {
-			tTool.VCP.data[tTool.VCP.line_temp][tTool.VCP.data_counter] = tTool.VCP.Data_one_byte;
-			tTool.VCP.data_counter 	= 0;
-			tTool.VCP.line_temp++;
-		}
-		else {
-			tTool.VCP.data[tTool.VCP.line_temp][tTool.VCP.data_counter] = tTool.VCP.Data_one_byte;
-			tTool.VCP.data_counter++;
-		}
-	}
-}
-void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim) {
-
-	if (htim->Instance == TIM3) {
-//		for (uint8_t i = 0; i < 3; i++) {
-//			if (tTool.head.tAxis[i].state_en == ON) {
-//
-//			}
-//		}
-
-		__NOP();
-	}
-}
-void HAL_TIM_PWM_PulseFinishedCallback(TIM_HandleTypeDef *htim) {
-	if (htim->Instance == TIM3) {
-		if(htim->Channel == HAL_TIM_ACTIVE_CHANNEL_1) {
-
-		} else if(htim->Channel == HAL_TIM_ACTIVE_CHANNEL_2) {
-			if (tTool.ax_st[2]) {
-				if (tTool.head.tAxis[2].direction == Forward) {
-					tTool.curr_pos[2] += ACCURACY;
-					if (tTool.curr_pos[2] >= tTool.trg_pos[2]) tTool.ax_st[2] = false;
-				}
-				else if (tTool.head.tAxis[2].direction == BackForward) 	{
-					tTool.curr_pos[2] -= ACCURACY;
-					if (tTool.curr_pos[2] <= tTool.trg_pos[2]) tTool.ax_st[2] = false;
-				}
-			}
-		} else if(htim->Channel == HAL_TIM_ACTIVE_CHANNEL_3) {
-			if (tTool.ax_st[1]) {
-				if (tTool.head.tAxis[1].direction == Forward) {
-					tTool.curr_pos[1] += ACCURACY;
-					if (tTool.curr_pos[1] >= tTool.trg_pos[1]) tTool.ax_st[1] = false;
-				}
-				else if (tTool.head.tAxis[1].direction == BackForward) {
-					tTool.curr_pos[1] -= ACCURACY;
-					if (tTool.curr_pos[1] <= tTool.trg_pos[1]) tTool.ax_st[1] = false;
-				}
-			}
-		} else if(htim->Channel == HAL_TIM_ACTIVE_CHANNEL_4) {
-			if (tTool.ax_st[0]) {
-				if (tTool.head.tAxis[0].direction == Forward) {
-					tTool.curr_pos[0] += ACCURACY;
-					if (tTool.curr_pos[0] >= tTool.trg_pos[0]) tTool.ax_st[0] = false;
-				}
-				else if (tTool.head.tAxis[0].direction == BackForward) {
-					tTool.curr_pos[0] -= ACCURACY;
-					if (tTool.curr_pos[0] <= tTool.trg_pos[0]) tTool.ax_st[0] = false;
-				}
-			}
-		}
-
-//		if (tTool.ax_st[2]) {
-//			if (tTool.curr_pos[2] >= tTool.trg_pos[2]) {
-//				tTool.ax_st[2] = false;
-//			}
-//		}
-//		if (tTool.ax_st[1]) {
-//			if (tTool.curr_pos[1] >= tTool.trg_pos[1]) {
-//				tTool.ax_st[1] = false;
-//			}
-//		}
-//		if (tTool.ax_st[0]) {
-//			if (tTool.curr_pos[0] >= tTool.trg_pos[0]) {
-//				tTool.ax_st[0] = false;
-//			}
-//		}
-	}
-
-}
 
 /*******************/
 /* Init device */
@@ -566,13 +101,25 @@ void tInit(void) {
 	LED_ERR_OP_OFF;
 
 
-
-	tTool.GMode = _G1_mode;
+	tMode(_G1_mode);
 	tToolFeedrateType(ftt_mm_min);
 	tToolFeedrate(100);
+	/***********************/
+	tHome();
+	tTool.origin_pos[0] 	= tTool.curr_pos[0];
+	tTool.origin_pos[1] 	= tTool.curr_pos[1];
+	tTool.origin_pos[2] 	= tTool.curr_pos[2];
 
-//	tHome();
+	tTool.Encoder.md_ct[0] 	= 2000;	// ENC_Auto
+	tTool.Encoder.md_ct[1] 	= 3000;	// ENC_HAND
+	tTool.Encoder.md_ct[2] 	= 4000;	// ENC_NONE
 
+	tTool.Encoder.md_ct[3] 	= 2000;	// ENC_X
+	tTool.Encoder.md_ct[4] 	= 3000;	// ENC_Y
+	tTool.Encoder.md_ct[5] 	= 4000;	// ENC_Z
+
+	tTool.Encoder.mode 		= ENC_Auto;
+	/***********************/
 	tTool.VCP.State = tVCP_Check();
 
 	if (tTool.VCP.State) {
@@ -585,9 +132,106 @@ void tInit(void) {
 			StartGCodeStorage(tTool.VCP.data, tTool.VCP.line_count);
 			tTool.VCP.command_IsReceived = false;
 		}
+
+		/*********************/
+		if (tTool.Encoder.Button_state) {
+			if (tTool.Encoder.md_sct != uwTick) tTool.Encoder.ButtonHasPressed = true;
+		}
+		else {
+			if (tTool.Encoder.ButtonHasPressed) {
+				if (((tTool.Encoder.md_sct + tTool.Encoder.md_ct[0]) <= uwTick) &&
+						((tTool.Encoder.md_sct + tTool.Encoder.md_ct[1]) >= uwTick)) {
+					tTool.Encoder.mode = ENC_Auto;
+				}
+
+				else if (((tTool.Encoder.md_sct + tTool.Encoder.md_ct[1]) <= uwTick) &&
+						((tTool.Encoder.md_sct + tTool.Encoder.md_ct[2]) >= uwTick)) {
+					tTool.Encoder.mode = ENC_HAND;
+				}
+
+				else if (((tTool.Encoder.md_sct + tTool.Encoder.md_ct[2]) <= uwTick) /*&&		// пока только три режима
+						((tTool.Encoder.md_sct + tTool.Encoder.md_ct[1]) >= uwTick)*/) {
+					tTool.Encoder.mode = ENC_NONE;
+				}
+				tTool.Encoder.ButtonHasPressed = false;
+			}
+			tTool.Encoder.md_sct = uwTick;
+		}
+
+		if (tTool.Encoder.mode == ENC_HAND) {
+			while(1) {
+				if (tTool.Encoder.Button_state) {
+					if (tTool.Encoder.md_sct != uwTick) tTool.Encoder.ButtonHasPressed = true;
+				}
+				else {
+					if (tTool.Encoder.ButtonHasPressed) {
+						if (((tTool.Encoder.md_sct + tTool.Encoder.md_ct[3]) <= uwTick) &&
+								((tTool.Encoder.md_sct + tTool.Encoder.md_ct[4]) >= uwTick)) {
+							tTool.Encoder.mode = ENC_X;
+						}
+
+						else if (((tTool.Encoder.md_sct + tTool.Encoder.md_ct[4]) <= uwTick) &&
+								((tTool.Encoder.md_sct + tTool.Encoder.md_ct[5]) >= uwTick)) {
+							tTool.Encoder.mode = ENC_Y;
+						}
+
+						else if (((tTool.Encoder.md_sct + tTool.Encoder.md_ct[6]) <= uwTick) /*&&
+								((tTool.Encoder.md_sct + tTool.Encoder.md_ct[1]) >= uwTick)*/) {
+							tTool.Encoder.mode = ENC_Z;
+						}
+						else if (((tTool.Encoder.md_sct + tTool.Encoder.md_ct[6]) <= uwTick) &&
+								((tTool.Encoder.md_sct + (tTool.Encoder.md_ct[6] + 1000)) >= uwTick)) {
+							tTool.Encoder.mode = ENC_NONE;
+							tTool.Encoder.ButtonHasPressed = false;
+							break;
+						}
+						tTool.Encoder.ButtonHasPressed = false;
+					}
+					tTool.Encoder.md_sct = uwTick;
+				}
+
+				if (tTool.Encoder.mode == ENC_X) {
+					if (tTool.Encoder.count_last_rotate >= 1) {
+						float x = tTool.curr_pos[0];
+						if (tTool.Encoder.current_rotate_side == Forward) x += 5;
+						else if (tTool.Encoder.current_rotate_side == BackForward) x -= 5;
+						tToolMove(x, tTool.curr_pos[1], tTool.curr_pos[2]);
+						tTool.Encoder.count_last_rotate = 0;
+					}
+				}
+				else if (tTool.Encoder.mode == ENC_Y) {
+					if (tTool.Encoder.count_last_rotate >= 1) {
+						float y = tTool.curr_pos[1];
+						if (tTool.Encoder.current_rotate_side == Forward) y += 5;
+						else if (tTool.Encoder.current_rotate_side == BackForward) y -= 5;
+						tToolMove(tTool.curr_pos[0], y, tTool.curr_pos[2]);
+						tTool.Encoder.count_last_rotate = 0;
+					}
+				}
+				else if (tTool.Encoder.mode == ENC_Z) {
+					if (tTool.Encoder.count_last_rotate >= 1) {
+						float z = tTool.curr_pos[2];
+						if (tTool.Encoder.current_rotate_side == Forward) z += 5;
+						else if (tTool.Encoder.current_rotate_side == BackForward) z -= 5;
+						tToolMove(tTool.curr_pos[0], tTool.curr_pos[1], z);
+						tTool.Encoder.count_last_rotate = 0;
+					}
+				}
+			}
+		}
+
+
+
+
+
+		/*********************/
+
 	}
 
-	while(1) {}
+	while(1) {
+		HAL_Delay(500);
+		LED_FREE_OP_TGL;
+	}
 
 //	tMove(4.3538, -0.5502, 10);
 //	tMove(4.3705, -0.5728, 10);
@@ -740,13 +384,6 @@ void tInit(void) {
 //	HAL_UART_Receive_DMA(&huart1, (uint8_t*)&tTool.VCP_Config.VCP_Data_one_byte, 1);
 
 
-
-
-
-
-
-
-
 }
 void tToolAxisEN(tAxis_t *ax, state_en_t st) {
 	HAL_GPIO_WritePin(ax->port_en, ax->pin_en, !st);
@@ -801,20 +438,22 @@ void tToolFeedrate(float feedrate) {
 
 /* Go home */
 void tHome(void) {
-	tTool.GMode 					= _G1_mode;
+	tMode(_G1_mode);
 	tToolFeedrateType(ftt_mm_min);
-	tToolFeedrate(50);
+	tToolFeedrate(200);
 
 	for (int8_t i = 2; i >= 0; i--) {
-		tToolAxisDiraction(&tTool.head.tAxis[i], Forward);
+		tToolAxisDiraction(&tTool.head.tAxis[i], BackForward);
 
 		tToolAxisEN(&tTool.head.tAxis[i], ON);
 		tToolAxisWork(&tTool.head.tAxis[i], ON);
 		while (!tTool.head.tAxis[i].state_SW) {}
 
-		tToolAxisDiraction(&tTool.head.tAxis[i], BackForward);
-
+		tToolAxisDiraction(&tTool.head.tAxis[i], Forward);
 		while (tTool.head.tAxis[i].state_SW) {}
+
+		for(uint32_t i = 0; i < 1000000; i++) {}				// Это нужно чтобы отъехать
+
 		tToolAxisWork(&tTool.head.tAxis[i], OFF);
 
 	}
@@ -831,10 +470,10 @@ void tToolPerformTimerEN(state_en_t st) {
 }
 /* Enter g-mode */
 void tMode(GMode_t gm) {
-
+	tTool.GMode	= gm;
 }
 /* Hard forward movement */
-void tMoveDirect(float x, float y, float z) {
+static void tMoveDirect(float x, float y, float z) {
 	tTool.trg_pos[0] = x;
 	tTool.trg_pos[1] = y;
 	tTool.trg_pos[2] = z;
@@ -888,7 +527,7 @@ void tMoveDirect(float x, float y, float z) {
 
 }
 /* Move to target position from the current position (calculate) */
-void tMove(float x, float y, float z) {
+void tToolMove(float x, float y, float z) {
 
 	if (tTool.GMode == _G0_mode) {
 		tToolFeedrate(MODE_G0_FEEDRATE);
@@ -1125,5 +764,146 @@ VCP_State_t tVCP_Check(void) {
 	return (VCP_State_t)HAL_GPIO_ReadPin(VP_ENABLE_PORT, VP_ENABLE_PIN);
 }
 
+void tToolSetOrigin(void) {
+	tTool.origin_pos[0] = tTool.curr_pos[0];
+	tTool.origin_pos[1] = tTool.curr_pos[1];
+	tTool.origin_pos[2] = tTool.curr_pos[2];
+}
+void tToolMoveToOrigin(void) {
+	tToolMove(tTool.origin_pos[0], tTool.origin_pos[1], tTool.origin_pos[2]);
+}
 
+//===============================================================================================//
+// CALLBACKS
+//===============================================================================================//
+void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin) {
+	/* Switch Axis edges */
+	if (GPIO_Pin == tTool.head.tAxis[0].pin_SW) {		// X
+		if (tTool.head.tAxis[0].port_SW->IDR & tTool.head.tAxis[0].pin_SW) tTool.head.tAxis[0].state_SW = false;
+		else if(!(tTool.head.tAxis[0].port_SW->IDR & tTool.head.tAxis[0].pin_SW)) tTool.head.tAxis[0].state_SW = true;
+	}
+	else if (GPIO_Pin == tTool.head.tAxis[1].pin_SW) {	// Y
+		if (tTool.head.tAxis[1].port_SW->IDR & tTool.head.tAxis[1].pin_SW) tTool.head.tAxis[1].state_SW = false;
+		else if(!(tTool.head.tAxis[1].port_SW->IDR & tTool.head.tAxis[1].pin_SW)) tTool.head.tAxis[1].state_SW = true;
+	}
+	else if (GPIO_Pin == tTool.head.tAxis[2].pin_SW) {	// Z
+		if (tTool.head.tAxis[2].port_SW->IDR & tTool.head.tAxis[2].pin_SW) tTool.head.tAxis[2].state_SW = false;
+		else if(!(tTool.head.tAxis[2].port_SW->IDR & tTool.head.tAxis[2].pin_SW)) tTool.head.tAxis[2].state_SW = true;
+	}
+	/* Encoder */
+	else if (GPIO_Pin == tTool.Encoder.pin1) {
+		if (HAL_GPIO_ReadPin(GPIOB, GPIO_PIN_4) == GPIO_PIN_RESET) {
+			if (tTool.Encoder.current_rotate_side == Forward) {
+				tTool.Encoder.current_rotate_side = BackForward;
+				tTool.Encoder.count_last_rotate = 0;
+			}
+			tTool.Encoder.count_last_rotate++;
+		}
+		else {
+			if (tTool.Encoder.current_rotate_side == BackForward) {
+				tTool.Encoder.current_rotate_side = Forward;
+				tTool.Encoder.count_last_rotate = 0;
+			}
+			tTool.Encoder.count_last_rotate++;
+		}
+	}
+	/* Encoder button */
+	else if (GPIO_Pin == tTool.Encoder.Button_pin) {
+		if (tTool.Encoder.Button_port->IDR & tTool.Encoder.Button_pin) tTool.Encoder.Button_state = false;
+		else if(!(tTool.Encoder.Button_port->IDR &tTool.Encoder.Button_pin)) tTool.Encoder.Button_state = true;
+	}
+
+//	else if (GPIO_Pin == tTool.Encoder.Button_pin) {
+//		tTool.Encoder.Button_state = true;
+//	}
+
+}
+void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart) {
+	if (huart == &huart1) {
+		if (tTool.VCP.Data_one_byte == 0xEF) {
+			tTool.VCP.line_count	= tTool.VCP.line_temp;
+			tTool.VCP.line_temp 	= 0;
+			tTool.VCP.data_counter 	= 0;
+			tTool.VCP.command_IsReceived = true;
+		}
+		else if ((tTool.VCP.data_counter >= (tTool.VCP.data[tTool.VCP.line_temp][0])) && (tTool.VCP.data_counter != 0)) {
+			tTool.VCP.data[tTool.VCP.line_temp][tTool.VCP.data_counter] = tTool.VCP.Data_one_byte;
+			tTool.VCP.data_counter 	= 0;
+			tTool.VCP.line_temp++;
+		}
+		else {
+			tTool.VCP.data[tTool.VCP.line_temp][tTool.VCP.data_counter] = tTool.VCP.Data_one_byte;
+			tTool.VCP.data_counter++;
+		}
+	}
+}
+void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim) {
+
+	if (htim->Instance == TIM3) {
+//		for (uint8_t i = 0; i < 3; i++) {
+//			if (tTool.head.tAxis[i].state_en == ON) {
+//
+//			}
+//		}
+
+		__NOP();
+	}
+}
+void HAL_TIM_PWM_PulseFinishedCallback(TIM_HandleTypeDef *htim) {
+	if (htim->Instance == TIM3) {
+		if(htim->Channel == HAL_TIM_ACTIVE_CHANNEL_1) {
+
+		} else if(htim->Channel == HAL_TIM_ACTIVE_CHANNEL_2) {
+			if (tTool.ax_st[2]) {
+				if (tTool.head.tAxis[2].direction == Forward) {
+					tTool.curr_pos[2] += ACCURACY;
+					if (tTool.curr_pos[2] >= tTool.trg_pos[2]) tTool.ax_st[2] = false;
+				}
+				else if (tTool.head.tAxis[2].direction == BackForward) 	{
+					tTool.curr_pos[2] -= ACCURACY;
+					if (tTool.curr_pos[2] <= tTool.trg_pos[2]) tTool.ax_st[2] = false;
+				}
+			}
+		} else if(htim->Channel == HAL_TIM_ACTIVE_CHANNEL_3) {
+			if (tTool.ax_st[1]) {
+				if (tTool.head.tAxis[1].direction == Forward) {
+					tTool.curr_pos[1] += ACCURACY;
+					if (tTool.curr_pos[1] >= tTool.trg_pos[1]) tTool.ax_st[1] = false;
+				}
+				else if (tTool.head.tAxis[1].direction == BackForward) {
+					tTool.curr_pos[1] -= ACCURACY;
+					if (tTool.curr_pos[1] <= tTool.trg_pos[1]) tTool.ax_st[1] = false;
+				}
+			}
+		} else if(htim->Channel == HAL_TIM_ACTIVE_CHANNEL_4) {
+			if (tTool.ax_st[0]) {
+				if (tTool.head.tAxis[0].direction == Forward) {
+					tTool.curr_pos[0] += ACCURACY;
+					if (tTool.curr_pos[0] >= tTool.trg_pos[0]) tTool.ax_st[0] = false;
+				}
+				else if (tTool.head.tAxis[0].direction == BackForward) {
+					tTool.curr_pos[0] -= ACCURACY;
+					if (tTool.curr_pos[0] <= tTool.trg_pos[0]) tTool.ax_st[0] = false;
+				}
+			}
+		}
+
+//		if (tTool.ax_st[2]) {
+//			if (tTool.curr_pos[2] >= tTool.trg_pos[2]) {
+//				tTool.ax_st[2] = false;
+//			}
+//		}
+//		if (tTool.ax_st[1]) {
+//			if (tTool.curr_pos[1] >= tTool.trg_pos[1]) {
+//				tTool.ax_st[1] = false;
+//			}
+//		}
+//		if (tTool.ax_st[0]) {
+//			if (tTool.curr_pos[0] >= tTool.trg_pos[0]) {
+//				tTool.ax_st[0] = false;
+//			}
+//		}
+	}
+
+}
 

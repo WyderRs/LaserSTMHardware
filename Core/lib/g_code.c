@@ -90,7 +90,7 @@ void GC_LinePerformMove(void) {
 	if (!flag_y) target_y = tTool.curr_pos[1];
 	if (!flag_z) target_z = tTool.curr_pos[2];
 
-	tMove(target_x, target_y, target_z);
+	tToolMove(target_x, target_y, target_z);
 }
 
 
